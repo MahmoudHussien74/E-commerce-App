@@ -1,6 +1,7 @@
-﻿using E_commerce.Core.Interfaces;
+using E_commerce.Core.Interfaces;
+using E_commerce.Core.Services;
 using E_commerce.Infrastructure.Data;
-using E_commerce.Infrastructure.Repositries;
+using E_commerce.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

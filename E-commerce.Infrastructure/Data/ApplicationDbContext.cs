@@ -1,4 +1,4 @@
-﻿using E_commerce.Core.Entites.Product;
+using E_commerce.Core.Entities.Product;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 namespace E_commerce.Infrastructure.Data;

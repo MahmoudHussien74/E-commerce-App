@@ -1,4 +1,4 @@
-﻿using E_commerce.Core.Entites.Product;
+using E_commerce.Core.Entities.Product;
 
 namespace E_commerce.Core.Interfaces;
 

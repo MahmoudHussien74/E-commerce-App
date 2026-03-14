@@ -1,6 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations.Schema;
 
-namespace E_commerce.Core.Entites.Product;
+namespace E_commerce.Core.Entities.Product;
 
 public class Photo : BaseEntity<int>
 {

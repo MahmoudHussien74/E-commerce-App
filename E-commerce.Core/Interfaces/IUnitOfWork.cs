@@ -1,4 +1,4 @@
-﻿namespace E_commerce.Core.Interfaces;
+namespace E_commerce.Core.Interfaces;
 
 public interface IUnitOfWork
 {

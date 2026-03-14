@@ -1,4 +1,4 @@
-﻿namespace E_commerce.Core.Entites.Product;
+namespace E_commerce.Core.Entities.Product;
 
 public class Category : BaseEntity<int>
 {
