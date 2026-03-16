@@ -9,6 +9,7 @@ public class CategoryMapping:Profile
     public CategoryMapping()
     {
         CreateMap<CategoryRequest, Category>();
+        CreateMap<Category, CategoryResponse>().ReverseMap();
         CreateMap<UpdateCategoryRequest, Category>();
     }
 }

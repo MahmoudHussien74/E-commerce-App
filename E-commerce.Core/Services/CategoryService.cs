@@ -1,57 +1,63 @@
 using AutoMapper;
+using E_commerce.Core.Common;
 using E_commerce.Core.Contracts.Category;
 using E_commerce.Core.Entities.Product;
+using E_commerce.Core.Errors;
 using E_commerce.Core.Interfaces;
 
 namespace E_commerce.Core.Services;
 
-public class CategoryService(IUnitOfWork unitOfWork,IMapper mapper): ICategoryService
+public class CategoryService(IUnitOfWork unitOfWork, IMapper mapper) : ICategoryService
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IMapper _mapper = mapper;
 
-    public async Task<Category> AddAsync(CategoryRequest category, CancellationToken cancellationToken = default)
+    public async Task<Result<CategoryResponse>> AddAsync(CategoryRequest category, CancellationToken cancellationToken = default)
     {
         var newCategory = _mapper.Map<Category>(category);
-        
 
-         await _unitOfWork.CategoryRepository.AddAsync(newCategory,cancellationToken);
+        await _unitOfWork.CategoryRepository.AddAsync(newCategory, cancellationToken);
 
-        return newCategory; 
+
+        return Result.Success(_mapper.Map<CategoryResponse>(newCategory));
     }
-    public async Task<bool> UpdateAsync(UpdateCategoryRequest request, CancellationToken cancellationToken = default)
+    public async Task<Result> UpdateAsync(UpdateCategoryRequest request, CancellationToken cancellationToken = default)
     {
-        var categoryIsExsist = await _unitOfWork.CategoryRepository.GetByIdAsync(request.Id,cancellationToken);
+        var categoryIsExsist = await _unitOfWork.CategoryRepository.GetByIdAsync(request.Id, cancellationToken);
 
         if (categoryIsExsist is null)
-            return false;
+            return Result.Failure(CategoryErrors.NotFound);
 
-
-        _mapper.Map(request,categoryIsExsist);
-        
+        _mapper.Map(request, categoryIsExsist);
 
         await _unitOfWork.CategoryRepository.UpdateAsync(categoryIsExsist, cancellationToken);
-        return true;
+        return Result.Success();
     }
-    public async Task<IReadOnlyList<Category>> GetAllAsync(CancellationToken cancellationToken = default)
-    => await _unitOfWork.CategoryRepository.GetAllAsync(cancellationToken);
-
-
-
-    public async Task<Category?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
-     =>  await _unitOfWork.CategoryRepository.GetByIdAsync(id, cancellationToken);
-
-    public async Task<bool> DeleteAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<Result<IReadOnlyList<CategoryResponse>>> GetAllAsync(CancellationToken cancellationToken = default)
     {
+        var categories = await _unitOfWork.CategoryRepository.GetAllAsync(cancellationToken);
+        return Result.Success(_mapper.Map<IReadOnlyList<CategoryResponse>>(categories));
+    }
 
+    public async Task<Result<CategoryResponse>> GetByIdAsync(int id, CancellationToken cancellationToken = default)
+    {
+        var category = await _unitOfWork.CategoryRepository.GetByIdAsync(id, cancellationToken);
+
+        if (category is null)
+            return Result.Failure<CategoryResponse>(CategoryErrors.NotFound);
+
+        return Result.Success(_mapper.Map<CategoryResponse>(category));
+    }
+
+    public async Task<Result> DeleteAsync(int id, CancellationToken cancellationToken = default)
+    {
         var categoryIsExsist = await _unitOfWork.CategoryRepository.GetByIdAsync(id, cancellationToken);
 
         if (categoryIsExsist is null)
-            return false;
+            return Result.Failure(CategoryErrors.NotFound);
 
-        await _unitOfWork.CategoryRepository.DeleteAsync(id,cancellationToken);
+        await _unitOfWork.CategoryRepository.DeleteAsync(id, cancellationToken);
 
-        return true;
-
+        return Result.Success();
     }
 }
