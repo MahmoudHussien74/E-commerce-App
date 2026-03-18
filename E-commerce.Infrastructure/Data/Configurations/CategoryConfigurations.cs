@@ -25,4 +25,17 @@ public class CategoryConfigurations : IEntityTypeConfiguration<Category>
         });
 
     }
+    public class PhotoConfigurations : IEntityTypeConfiguration<Photo>
+    {
+        public void Configure(EntityTypeBuilder<Photo> builder)
+        {
+            builder.HasData(new Photo
+            {
+                Id = 3,
+                ImageName = "Test",
+                ProductId = 1
+            });
+        }
+    }
+
 }

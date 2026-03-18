@@ -3,6 +3,7 @@ using E_commerce.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace E_commerce.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260318123702_seedingforPhotoTable")]
+    partial class seedingforPhotoTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -100,10 +103,7 @@ namespace E_commerce.Infrastructure.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<decimal>("NewPrice")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("OldPrice")
+                    b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
@@ -119,8 +119,7 @@ namespace E_commerce.Infrastructure.Data.Migrations
                             CategoryId = 1,
                             Description = "Test",
                             Name = "Test",
-                            NewPrice = 12m,
-                            OldPrice = 0m
+                            Price = 12m
                         });
                 });
 

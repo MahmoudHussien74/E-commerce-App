@@ -5,9 +5,9 @@ namespace E_commerce.Infrastructure.Data;
 
 public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) :DbContext(options)
 {
-    DbSet<Product> Products {  get; set; }
-    DbSet<Category>  Categories {  get; set; }
-    DbSet<Photo>  Photos {  get; set; }
+   public DbSet<Product> Products {  get; set; }
+   public DbSet<Category>  Categories {  get; set; }
+   public DbSet<Photo>  Photos {  get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

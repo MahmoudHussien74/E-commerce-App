@@ -8,4 +8,10 @@ public static class ProductErrors
         "Product.NotFound", 
         "The product with the specified ID was not found.", 
         404);
+
+    public static readonly Error AdditionFailed = new(
+        "Product.AdditionFailed", 
+        "Something went wrong while adding the product.", 
+        500);
+
 }

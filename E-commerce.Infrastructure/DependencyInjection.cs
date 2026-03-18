@@ -5,6 +5,7 @@ using E_commerce.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 
 namespace E_commerce.Infrastructure;
 
@@ -16,10 +17,15 @@ public static class DependencyInjection
         services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
+
+
+       
         services.AddDbContext<ApplicationDbContext>(options =>
         {
             options.UseSqlServer(configuration.GetConnectionString("EcommerceDatabase"));
         });
+
+
         return services;
     }
 }

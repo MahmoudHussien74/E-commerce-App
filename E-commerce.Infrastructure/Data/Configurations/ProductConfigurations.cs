@@ -18,7 +18,7 @@ public class ProductConfigurations : IEntityTypeConfiguration<Product>
         builder.Property(x => x.Description)
                 .IsRequired();
 
-        builder.Property(x => x.Price)
+        builder.Property(x => x.NewPrice)
                .HasColumnType("decimal(18,2)");
 
         builder.HasData(new Product
@@ -27,7 +27,7 @@ public class ProductConfigurations : IEntityTypeConfiguration<Product>
             Name = "Test",
             Description = "Test",
             CategoryId = 1,
-            Price=12
+            NewPrice=12
         });
 
     }
