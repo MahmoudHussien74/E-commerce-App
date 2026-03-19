@@ -11,7 +11,6 @@ public record ProductRequest(
     int CategoryId,
     IFormFileCollection Photo 
 );
-
 public class ProductRequestValidator : AbstractValidator<ProductRequest>
 {
     public ProductRequestValidator()

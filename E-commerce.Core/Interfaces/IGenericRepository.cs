@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Linq.Expressions;
 
 namespace E_commerce.Core.Interfaces;
@@ -13,5 +14,8 @@ public interface IGenericRepository<T> where T : class
     Task AddAsync(T entity, CancellationToken cancellationToken = default!);
     Task UpdateAsync(T entity, CancellationToken cancellationToken = default!);
     Task DeleteAsync(int id, CancellationToken cancellationToken = default!);
+    Task DeleteAsync(T entity, CancellationToken cancellationToken = default!);
+    Task DeleteRangeAsync(IEnumerable<T> entities, CancellationToken cancellationToken = default!);
 
+    Task<IReadOnlyList<T>> GetListAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default);
 }

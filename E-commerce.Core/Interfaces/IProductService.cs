@@ -8,6 +8,9 @@ public interface IProductService
     Task<Result<List<ProductResponse>>> GetAllProductsAsync(CancellationToken cancellationToken = default);
     Task<Result<ProductResponse>> GetProductByIdAsync(int id, CancellationToken cancellationToken = default);
     Task<Result> AddAsync(ProductRequest request, CancellationToken cancellationToken);
+    Task<Result> UpdateAsync(int id,ProductRequest request, CancellationToken cancellationToken);
+    Task<Result> DeleteAsync(int id, CancellationToken cancellationToken);
+
 
 
 }

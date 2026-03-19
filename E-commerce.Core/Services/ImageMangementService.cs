@@ -1,4 +1,4 @@
-﻿using E_commerce.Core.Interfaces;
+using E_commerce.Core.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.FileProviders;
 
@@ -35,11 +35,13 @@ public class ImageMangementService(IFileProvider fileProvider) : IImageMangement
              return saveImage;
     }
 
-    public void DeleteImageAsync(string src)
+    public Task DeleteImageAsync(string src)
     {
         var info = _fileProvider.GetFileInfo(src);
         var root = info.PhysicalPath;
         if (File.Exists(root))
             File.Delete(root);
+
+        return Task.CompletedTask;
     }
 }

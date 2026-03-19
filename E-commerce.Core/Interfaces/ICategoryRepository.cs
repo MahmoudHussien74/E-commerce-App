@@ -8,5 +8,5 @@ public interface ICategoryRepository:IGenericRepository<Category>
 }
 public interface IPhotoRepository : IGenericRepository<Photo> 
 {
-
+   Task<List<Photo>> GetPhotoByProductId(int id);
 }

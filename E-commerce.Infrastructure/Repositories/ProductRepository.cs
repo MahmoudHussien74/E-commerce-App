@@ -17,6 +17,12 @@ public class ProductRepository(ApplicationDbContext context) : GenericRepository
                     .AsNoTracking()
                     .FirstOrDefault()!;
     
+    public async Task<Product> GetProductIncludeCategoryAndPhotoAsync(int id, CancellationToken cancellationToken)
+        => _context.Set<Product>()
+                    .Include(x => x.Category)
+                    .Include(x => x.Photos)
+                    .FirstOrDefault(x => x.Id == id)!;
+    
 
       
     

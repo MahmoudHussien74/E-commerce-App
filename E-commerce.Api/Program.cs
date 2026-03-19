@@ -30,7 +30,9 @@ builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 //builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
-builder.Services.AddAutoMapper(typeof(MappingConfiguration).Assembly);
+builder.Services.AddAutoMapper(cfg => {
+    cfg.AddMaps(typeof(MappingConfiguration).Assembly);
+});
 
 var app = builder.Build();
 

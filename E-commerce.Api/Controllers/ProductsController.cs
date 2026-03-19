@@ -24,15 +24,31 @@ public class ProductsController(IProductService productService) : ControllerBase
 
         return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
     }
-    [HttpPost]
+    [HttpPost("")]
     public async Task<IActionResult> Add([FromForm]ProductRequest request,CancellationToken cancellationToken)
     {
        var result =await _productService.AddAsync(request,cancellationToken);
 
        
-        return result.IsSuccess?NoContent():result.ToProblem();
-
+        return result.IsSuccess?Created():result.ToProblem();
     }
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update([FromRoute]int id,[FromForm] ProductRequest request, CancellationToken cancellationToken)
+    {
+        var result = await _productService.UpdateAsync(id,request,cancellationToken);
 
+        return result.IsSuccess
+            ? NoContent()
+            : result.ToProblem();
+    }
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete([FromRoute]int id, CancellationToken cancellationToken)
+    {
+        var result = await _productService.DeleteAsync(id,cancellationToken);
+
+        return result.IsSuccess
+            ? NoContent()
+            : result.ToProblem();
+    }
 
 }

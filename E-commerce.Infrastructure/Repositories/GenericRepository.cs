@@ -1,6 +1,7 @@
 using E_commerce.Core.Interfaces;
 using E_commerce.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 using System.Linq.Expressions;
 
 namespace E_commerce.Infrastructure.Repositories;
@@ -27,9 +28,22 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
     public async Task DeleteAsync(int id, CancellationToken cancellationToken)
     {
         var entity = await _context.Set<T>().FindAsync(id);
-        _context.Remove(entity);
+        if (entity is not null)
+        {
+            _context.Remove(entity);
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+    }
+    public async Task DeleteAsync(T entity, CancellationToken cancellationToken = default)
+    {
+        _context.Set<T>().Remove(entity);
         await _context.SaveChangesAsync(cancellationToken);
+    }
 
+    public async Task DeleteRangeAsync(IEnumerable<T> entities, CancellationToken cancellationToken)
+    {
+        _context.Set<T>().RemoveRange(entities);
+        await _context.SaveChangesAsync(cancellationToken);
     }
 
 
@@ -65,5 +79,10 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
         await _context.SaveChangesAsync(cancellationToken);
     }
 
+    public async Task<IReadOnlyList<T>> GetListAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default)
+    {
+        return await _context.Set<T>().AsNoTracking().Where(predicate).ToListAsync(cancellationToken);
+    }
 
+   
 }

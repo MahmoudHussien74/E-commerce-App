@@ -14,4 +14,9 @@ public static class ProductErrors
         "Something went wrong while adding the product.", 
         500);
 
+    public static readonly Error UpdateFailed = new(
+        "Product.UpdateFailed", 
+        "Something went wrong while updating the product.", 
+        500);
+
 }
