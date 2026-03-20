@@ -83,6 +83,18 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
     {
         return await _context.Set<T>().AsNoTracking().Where(predicate).ToListAsync(cancellationToken);
     }
+    public IQueryable<T> GetQueryable()
+    {
+        return  _context.Set<T>().AsQueryable();
+    }
+    public IQueryable<T> GetQueryable(params Expression<Func<T, object>>[] includes)
+    {
+        var query = _context.Set<T>().AsQueryable();
 
-   
+        foreach (var include in includes)
+            query = query.Include(include);
+
+        return query;
+    }
+
 }

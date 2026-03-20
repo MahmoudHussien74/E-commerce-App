@@ -1,4 +1,5 @@
-﻿using E_commerce.Api.Abstraction;
+using E_commerce.Api.Abstraction;
+using E_commerce.Core.Contracts.Common;
 using E_commerce.Core.Contracts.Product;
 using E_commerce.Core.Interfaces;
 using Microsoft.AspNetCore.Http;
@@ -14,8 +15,12 @@ public class ProductsController(IProductService productService) : ControllerBase
 
 
     [HttpGet("")]
-    public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
-     => Ok((await _productService.GetAllProductsAsync(cancellationToken)).Value);
+    public async Task<IActionResult> GetAll([FromQuery]RequestFilter? filter,CancellationToken cancellationToken)
+    {
+       var result =await _productService.GetAllProductsAsync(filter,cancellationToken);
+
+        return Ok(result.Value);
+    }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> Get([FromRoute]int id,CancellationToken cancellationToken)

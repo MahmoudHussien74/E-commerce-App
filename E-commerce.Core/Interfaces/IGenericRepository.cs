@@ -10,7 +10,8 @@ public interface IGenericRepository<T> where T : class
     Task<T?> GetAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default!);
      Task AddRangeAsync(List<T> entity, CancellationToken cancellationToken);
     Task<T?> GetByIdAsync(int id, CancellationToken cancellationToken = default!);
-
+    IQueryable<T> GetQueryable();
+    IQueryable<T> GetQueryable(params Expression<Func<T, object>>[] includes);
     Task AddAsync(T entity, CancellationToken cancellationToken = default!);
     Task UpdateAsync(T entity, CancellationToken cancellationToken = default!);
     Task DeleteAsync(int id, CancellationToken cancellationToken = default!);

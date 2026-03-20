@@ -1,5 +1,6 @@
 using AutoMapper;
 using E_commerce.Core.Common;
+using E_commerce.Core.Contracts.Common;
 using E_commerce.Core.Contracts.Product;
 using E_commerce.Core.Entities.Product;
 using E_commerce.Core.Errors;
@@ -13,19 +14,22 @@ public class ProductService(IUnitOfWork unitOfWork, IMapper mapper, IImageMangem
     private readonly IMapper _mapper = mapper;
     private readonly IImageMangementService _imageMangementService = imageMangementService;
 
-    public async Task<Result<List<ProductResponse>>> GetAllProductsAsync(CancellationToken cancellationToken = default)
+    public async Task<Result<PaginatedList<ProductResponse>>> GetAllProductsAsync(RequestFilter? filters, CancellationToken cancellationToken = default)
     {
-        var products = await _unitOfWork.ProductRepository.GetAllAsync(x => x.Category, x => x.Photos);
-
-        var response = _mapper.Map<List<ProductResponse>>(products);
-
+        var products = await _unitOfWork.ProductRepository.GetAllProductsAsync(filters ?? new RequestFilter(), cancellationToken);
+        
+        var mappedItems = _mapper.Map<List<ProductResponse>>(products.Items);
+        
+        var response = new PaginatedList<ProductResponse>(mappedItems, products.PageNumber, products.TotalCount, products.PageSize);
+        
         return Result.Success(response);
     }
+
 
     public async Task<Result<ProductResponse>> GetProductByIdAsync(int id, CancellationToken cancellationToken = default)
     {
         var product = await _unitOfWork.ProductRepository.GetProductById(id, cancellationToken);
-        
+
         if (product is null)
             return Result.Failure<ProductResponse>(ProductErrors.NotFound);
 
@@ -73,7 +77,7 @@ public class ProductService(IUnitOfWork unitOfWork, IMapper mapper, IImageMangem
 
             _mapper.Map(request, product);
 
-            // 1. Add new photos to storage
+
             var imagePaths = await _imageMangementService.AddImageAsync(request.Photo, request.Name);
             var newPhotos = imagePaths.Select(x => new Photo
             {
@@ -83,14 +87,14 @@ public class ProductService(IUnitOfWork unitOfWork, IMapper mapper, IImageMangem
 
             await _unitOfWork.PhotoRepository.AddRangeAsync(newPhotos, cancellationToken);
 
-            // 2. Delete old photos from storage and DB
+
             foreach (var item in oldPhotos)
             {
                 await _imageMangementService.DeleteImageAsync(item.ImageName);
             }
             await _unitOfWork.PhotoRepository.DeleteRangeAsync(oldPhotos, cancellationToken);
 
-            // 3. Update the product
+
             await _unitOfWork.ProductRepository.UpdateAsync(product, cancellationToken);
 
             return Result.Success();
@@ -108,15 +112,17 @@ public class ProductService(IUnitOfWork unitOfWork, IMapper mapper, IImageMangem
         if (product is null)
             return Result.Failure(ProductErrors.NotFound);
 
-        // 1. Delete associated physical images first
+
         foreach (var item in product.Photos)
         {
             await _imageMangementService.DeleteImageAsync(item.ImageName);
         }
 
-        // 2. Delete from DB using the entity overload for better performance
+
         await _unitOfWork.ProductRepository.DeleteAsync(product, cancellationToken);
 
         return Result.Success();
     }
+
+
 }

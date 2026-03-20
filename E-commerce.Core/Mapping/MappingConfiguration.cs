@@ -21,5 +21,7 @@ public class MappingConfiguration : Profile
         CreateMap<Product, ProductResponse>();
         CreateMap<ProductRequest, Product>();
 
+
+
     }
 }
