@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
+using StackExchange.Redis;
 
 namespace E_commerce.Infrastructure;
 
@@ -18,6 +19,12 @@ public static class DependencyInjection
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 
+        services.AddSingleton<IConnectionMultiplexer>(i =>
+        {
+            var config = configuration.GetConnectionString("redis");
+
+            return ConnectionMultiplexer.Connect(config!);
+        }); ;
 
        
         services.AddDbContext<ApplicationDbContext>(options =>
