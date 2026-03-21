@@ -5,8 +5,7 @@ namespace E_commerce.Core.Interfaces;
 
 public interface ICustomerBasketRepository
 {
-    Task<CustomerBasket> GetBasketAsync(string id);
-    Task<CustomerBasket> UpdateBasketAsync(CustomerBasket basket);
+    Task<Result<CustomerBasket>> GetBasketAsync(string id);
+    Task<Result<CustomerBasket>> UpdateBasketAsync(CustomerBasket basket);
     Task<Result> DeleteBasketAsync(string id);
-
 }

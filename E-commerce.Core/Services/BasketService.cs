@@ -16,12 +16,12 @@ public class BasketService(IUnitOfWork unitOfWork, IMapper mapper) : IBasketServ
     {
         try
         {
-            var basket = await _unitOfWork.CustomerBasketRepository.GetBasketAsync(id);
+            var result = await _unitOfWork.CustomerBasketRepository.GetBasketAsync(id);
 
-            if (basket is null)
-                return Result.Failure<CustomerBasketResponse>(BasketErrors.NotFound);
+            if (result.IsFailure)
+                return Result.Failure<CustomerBasketResponse>(result.Error);
 
-            var response = _mapper.Map<CustomerBasketResponse>(basket);
+            var response = _mapper.Map<CustomerBasketResponse>(result.Value);
 
             return Result.Success(response);
         }
@@ -37,12 +37,12 @@ public class BasketService(IUnitOfWork unitOfWork, IMapper mapper) : IBasketServ
         {
             var basket = _mapper.Map<CustomerBasket>(basketDto);
 
-            var updatedBasket = await _unitOfWork.CustomerBasketRepository.UpdateBasketAsync(basket);
+            var result = await _unitOfWork.CustomerBasketRepository.UpdateBasketAsync(basket);
 
-            if (updatedBasket is null)
-                return Result.Failure<CustomerBasketResponse>(BasketErrors.UpdateFailed);
+            if (result.IsFailure)
+                return Result.Failure<CustomerBasketResponse>(result.Error);
 
-            var response = _mapper.Map<CustomerBasketResponse>(updatedBasket);
+            var response = _mapper.Map<CustomerBasketResponse>(result.Value);
 
             return Result.Success(response);
         }

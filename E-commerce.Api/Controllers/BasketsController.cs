@@ -1,7 +1,6 @@
 using E_commerce.Api.Abstraction;
 using E_commerce.Core.Contracts.Basket;
 using E_commerce.Core.Interfaces;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace E_commerce.Api.Controllers
@@ -21,7 +20,6 @@ namespace E_commerce.Api.Controllers
                 ? Ok(result.Value)
                 : result.ToProblem();
         }
-
         [HttpPost]
         public async Task<IActionResult> Add([FromBody] CustomerBasketResponse basket)
         {
@@ -31,7 +29,6 @@ namespace E_commerce.Api.Controllers
                 ? Ok(result.Value)
                 : result.ToProblem();
         }
-
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete([FromRoute] string id)
         {

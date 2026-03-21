@@ -1,5 +1,6 @@
 using E_commerce.Core.Common;
 using E_commerce.Core.Entities;
+using E_commerce.Core.Errors;
 using E_commerce.Core.Interfaces;
 using Microsoft.AspNetCore.Http;
 using StackExchange.Redis;
@@ -21,21 +22,21 @@ public class CustomerBasketRepository : ICustomerBasketRepository
         var result = await _database.KeyDeleteAsync(id);
 
         return result ? Result.Success()
-            : Result.Failure(new Error("","",StatusCodes.Status400BadRequest));
+            : Result.Failure(BasketErrors.DeletionFailed);
     }
 
-    public async Task<CustomerBasket> GetBasketAsync(string id)
+    public async Task<Result<CustomerBasket>> GetBasketAsync(string id)
     {
         var result = await _database.StringGetAsync(id);
-        if (!string.IsNullOrEmpty(result))
-        {
+        
+        if (result.IsNullOrEmpty)
+            return Result.Failure<CustomerBasket>(BasketErrors.NotFound);
 
-            return  JsonSerializer.Deserialize<CustomerBasket>(result!)!;
-        }
-        return null;
+        var basket = JsonSerializer.Deserialize<CustomerBasket>(result!)!;
+        return Result.Success(basket);
     }
 
-    public async Task<CustomerBasket> UpdateBasketAsync(CustomerBasket basket)
+    public async Task<Result<CustomerBasket>> UpdateBasketAsync(CustomerBasket basket)
     {
         var created = await _database.StringSetAsync(
             basket.Id,
@@ -44,7 +45,7 @@ public class CustomerBasketRepository : ICustomerBasketRepository
         );
 
         if (!created)
-            return null;
+            return Result.Failure<CustomerBasket>(BasketErrors.UpdateFailed);
 
         return await GetBasketAsync(basket.Id);
     }
