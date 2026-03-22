@@ -1,0 +1,40 @@
+using E_commerce.Core.Common;
+using Microsoft.AspNetCore.Http;
+
+namespace E_commerce.Core.Errors;
+
+public static class UserErrors
+{
+    public static readonly Error InvalidRole =
+        new("Role.InvalidRole", "Invalid Role", StatusCodes.Status400BadRequest);
+
+    public static readonly Error InvalidCredentials =
+        new("User.InvalidCredentials", "Invalid email/password", StatusCodes.Status401Unauthorized);
+
+    public static readonly Error DisabledUser =
+        new("User.DisabledUser", "Disabled user, please contact your administrator", StatusCodes.Status401Unauthorized);
+
+    public static readonly Error LockedUser =
+        new("User.LockedUser", "Locked user, please contact your administrator", StatusCodes.Status401Unauthorized);
+
+    public static readonly Error InvalidJwtToken =
+        new("User.InvalidJwtToken", "Invalid JWT token", StatusCodes.Status401Unauthorized);
+
+    public static readonly Error InvalidRefreshToken =
+        new("User.InvalidRefreshToken", "Invalid refresh token", StatusCodes.Status401Unauthorized);
+
+    public static readonly Error DuplicatedEmail =
+        new("User.DuplicatedEmail", "Another user with the same email already exists", StatusCodes.Status409Conflict);
+
+    public static readonly Error EmailNotConfirmed =
+        new("User.EmailNotConfirmed", "Email is not confirmed", StatusCodes.Status401Unauthorized);
+
+    public static readonly Error InvalidCode =
+        new("User.InvalidCode", "Invalid code", StatusCodes.Status401Unauthorized);
+
+    public static readonly Error DuplicatedConfirmation =
+        new("User.DuplicatedConfirmation", "Email already confirmed", StatusCodes.Status400BadRequest);
+
+    public static readonly Error UserNotFound =
+        new("User.NotFound", "User Not Found", StatusCodes.Status404NotFound);
+}

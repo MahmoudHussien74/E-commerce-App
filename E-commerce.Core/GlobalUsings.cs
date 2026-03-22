@@ -1,0 +1,16 @@
+global using FluentValidation;
+global using Microsoft.Extensions.DependencyInjection;
+global using System.Reflection;
+global using AutoMapper;
+global using E_commerce.Core.Interfaces;
+global using E_commerce.Core.Services;
+global using E_commerce.Core.Mapping;
+global using E_commerce.Core.Contracts.Authentication;
+global using E_commerce.Core.Contracts.Category;
+global using E_commerce.Core.Contracts.Product;
+global using E_commerce.Core.Contracts.Basket;
+global using E_commerce.Core.Contracts.Common;
+global using E_commerce.Core.Entities;
+global using E_commerce.Core.Entities.Product;
+global using E_commerce.Core.Common;
+global using E_commerce.Core.Errors;

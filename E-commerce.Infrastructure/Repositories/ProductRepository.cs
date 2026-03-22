@@ -1,8 +1,5 @@
-using AutoMapper;
-using AutoMapper.QueryableExtensions;
 using E_commerce.Core.Common;
 using E_commerce.Core.Contracts.Common;
-using E_commerce.Core.Contracts.Product;
 using E_commerce.Core.Entities.Product;
 using E_commerce.Core.Interfaces;
 using E_commerce.Infrastructure.Data;
@@ -36,6 +33,7 @@ public class ProductRepository(ApplicationDbContext context) : GenericRepository
             .Include(x => x.Category)
             .Include(x => x.Photos)
             .AsQueryable();
+
 
         if (!string.IsNullOrEmpty(filters.SearchValue))
             query = query.Where(x => x.Name.Contains(filters.SearchValue));

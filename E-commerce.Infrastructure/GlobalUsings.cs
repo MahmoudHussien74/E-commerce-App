@@ -1,0 +1,14 @@
+global using Microsoft.EntityFrameworkCore;
+global using Microsoft.Extensions.Configuration;
+global using Microsoft.Extensions.DependencyInjection;
+global using Microsoft.AspNetCore.Identity;
+global using StackExchange.Redis;
+global using E_commerce.Core.Interfaces;
+global using E_commerce.Core.Services;
+global using E_commerce.Core.Entities;
+global using E_commerce.Core.Common;
+global using E_commerce.Core.Errors;
+global using E_commerce.Core.Contracts.Authentication;
+global using E_commerce.Infrastructure.Data;
+global using E_commerce.Infrastructure.Repositories;
+global using E_commerce.Infrastructure.Service;

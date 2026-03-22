@@ -1,8 +1,3 @@
-using E_commerce.Api.Abstraction;
-using E_commerce.Core.Contracts.Category;
-using E_commerce.Core.Interfaces;
-using Microsoft.AspNetCore.Mvc;
-
 namespace E_commerce.Api.Controllers;
 
 [Route("api/[controller]")]

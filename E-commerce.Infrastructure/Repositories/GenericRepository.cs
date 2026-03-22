@@ -1,7 +1,3 @@
-using E_commerce.Core.Interfaces;
-using E_commerce.Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
-using System.Linq;
 using System.Linq.Expressions;
 
 namespace E_commerce.Infrastructure.Repositories;

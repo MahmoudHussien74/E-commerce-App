@@ -1,10 +1,3 @@
-using AutoMapper;
-using E_commerce.Core.Common;
-using E_commerce.Core.Contracts.Category;
-using E_commerce.Core.Entities.Product;
-using E_commerce.Core.Errors;
-using E_commerce.Core.Interfaces;
-
 namespace E_commerce.Core.Services;
 
 public class CategoryService(IUnitOfWork unitOfWork, IMapper mapper) : ICategoryService

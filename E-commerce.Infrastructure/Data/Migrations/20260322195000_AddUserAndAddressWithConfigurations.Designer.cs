@@ -4,6 +4,7 @@ using E_commerce.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace E_commerce.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260322195000_AddUserAndAddressWithConfigurations")]
+    partial class AddUserAndAddressWithConfigurations
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -169,7 +172,7 @@ namespace E_commerce.Infrastructure.Data.Migrations
                         });
                 });
 
-            modelBuilder.Entity("E_commerce.Infrastructure.Data.User", b =>
+            modelBuilder.Entity("E_commerce.Core.Entities.User", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
@@ -374,11 +377,13 @@ namespace E_commerce.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("E_commerce.Core.Entities.Address", b =>
                 {
-                    b.HasOne("E_commerce.Infrastructure.Data.User", null)
-                        .WithMany()
+                    b.HasOne("E_commerce.Core.Entities.User", "User")
+                        .WithMany("Addresses")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("E_commerce.Core.Entities.Product.Photo", b =>
@@ -414,7 +419,7 @@ namespace E_commerce.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("E_commerce.Infrastructure.Data.User", null)
+                    b.HasOne("E_commerce.Core.Entities.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -423,7 +428,7 @@ namespace E_commerce.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("E_commerce.Infrastructure.Data.User", null)
+                    b.HasOne("E_commerce.Core.Entities.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -438,7 +443,7 @@ namespace E_commerce.Infrastructure.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("E_commerce.Infrastructure.Data.User", null)
+                    b.HasOne("E_commerce.Core.Entities.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -447,7 +452,7 @@ namespace E_commerce.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("E_commerce.Infrastructure.Data.User", null)
+                    b.HasOne("E_commerce.Core.Entities.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -462,6 +467,11 @@ namespace E_commerce.Infrastructure.Data.Migrations
             modelBuilder.Entity("E_commerce.Core.Entities.Product.Product", b =>
                 {
                     b.Navigation("Photos");
+                });
+
+            modelBuilder.Entity("E_commerce.Core.Entities.User", b =>
+                {
+                    b.Navigation("Addresses");
                 });
 #pragma warning restore 612, 618
         }

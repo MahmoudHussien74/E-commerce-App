@@ -1,3 +1,5 @@
+using E_commerce.Core.Services;
+
 namespace E_commerce.Core.Interfaces;
 
 public interface IUnitOfWork
@@ -6,4 +8,6 @@ public interface IUnitOfWork
     public IProductRepository  ProductRepository { get; }
     public IPhotoRepository  PhotoRepository { get; }
     public ICustomerBasketRepository  CustomerBasketRepository { get; }
+    public IAuthService AuthService { get; }
+   
 }

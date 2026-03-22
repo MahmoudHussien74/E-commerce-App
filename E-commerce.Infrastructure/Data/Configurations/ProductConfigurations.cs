@@ -20,6 +20,8 @@ public class ProductConfigurations : IEntityTypeConfiguration<Product>
 
         builder.Property(x => x.NewPrice)
                .HasColumnType("decimal(18,2)");
+        builder.Property(x => x.OldPrice)
+               .HasColumnType("decimal(18,2)");
 
         builder.HasData(new Product
         {
