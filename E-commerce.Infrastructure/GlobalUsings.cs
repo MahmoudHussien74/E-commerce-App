@@ -12,3 +12,4 @@ global using E_commerce.Core.Contracts.Authentication;
 global using E_commerce.Infrastructure.Data;
 global using E_commerce.Infrastructure.Repositories;
 global using E_commerce.Infrastructure.Service;
+global using E_commerce.Infrastructure.Authentication;

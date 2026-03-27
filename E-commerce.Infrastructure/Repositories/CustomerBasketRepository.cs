@@ -1,9 +1,3 @@
-using E_commerce.Core.Common;
-using E_commerce.Core.Entities;
-using E_commerce.Core.Errors;
-using E_commerce.Core.Interfaces;
-using Microsoft.AspNetCore.Http;
-using StackExchange.Redis;
 using System.Text.Json;
 
 namespace E_commerce.Infrastructure.Repositories;

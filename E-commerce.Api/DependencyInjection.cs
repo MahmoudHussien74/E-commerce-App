@@ -1,5 +1,9 @@
 using E_commerce.Core.Mapping;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using E_commerce.Infrastructure.Authentication;
 
 namespace E_commerce.Api;
 
@@ -13,7 +17,8 @@ public static class DependencyInjection
                 .AddSwaggerServices()
                 .AddControllerServices()
                 .AddGlobalExceptionServices()
-                .AddFileServices();
+                .AddFileServices()
+                .AddAuthSystem(configuration);
 
         return services;
     }
@@ -60,6 +65,39 @@ public static class DependencyInjection
         );
 
         services.AddSingleton<IImageMangementService, ImageMangementService>();
+
+        return services;
+    }
+
+    private static IServiceCollection AddAuthSystem(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddScoped<IJwtProvider, JwtProvider>();
+
+        services.AddOptions<JwtOptions>()
+            .BindConfiguration(JwtOptions.SectionName)
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
+        var jwtSettings = configuration.GetSection(JwtOptions.SectionName).Get<JwtOptions>();
+
+        services.AddAuthentication(option =>
+        {
+            option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            option.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        }).AddJwtBearer(option =>
+        {
+            option.SaveToken = true;
+            option.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings!.Key)),
+                ValidIssuer = jwtSettings.Issuer,
+                ValidAudience = jwtSettings.Audience
+            };
+        });
 
         return services;
     }

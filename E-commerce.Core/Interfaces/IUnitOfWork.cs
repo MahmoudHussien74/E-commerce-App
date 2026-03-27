@@ -1,5 +1,3 @@
-using E_commerce.Core.Services;
-
 namespace E_commerce.Core.Interfaces;
 
 public interface IUnitOfWork

@@ -1,11 +1,9 @@
-﻿namespace E_commerce.Core.Contracts.Authentication;
+namespace E_commerce.Core.Contracts.Authentication;
 
 public record AuthResponse(
       string Id,
+      string Name,
       string Email,
-      string Name
-      //string Token,
-      //int ExpiresIn,
-      //string refreshToken,
-      //DateTime expireationRefreshToken
+      string Token,
+      int expireMinute
  );

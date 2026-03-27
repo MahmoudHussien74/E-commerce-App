@@ -1,3 +1,5 @@
+using E_commerce.Core.Entities;
+
 namespace E_commerce.Api.Controllers;
 
 [Route("api/[controller]")]
@@ -10,6 +12,14 @@ public class AuthController(IAuthService authService) : ControllerBase
     public async Task<IActionResult> Register([FromBody] RegisterRequest request)
     {
         var result = await _authService.RegisterAsync(request);
+
+        return result.IsSuccess ? Ok() : result.ToProblem();
+    }
+
+    [HttpPost("login")]
+    public async Task<IActionResult> Login([FromBody] LoginRequest request)
+    {
+        var result = await _authService.LoginAsync(request);
 
         return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
     }
