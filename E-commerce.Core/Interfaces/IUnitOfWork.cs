@@ -7,5 +7,10 @@ public interface IUnitOfWork
     public IPhotoRepository  PhotoRepository { get; }
     public ICustomerBasketRepository  CustomerBasketRepository { get; }
     public IAuthService AuthService { get; }
-   
+
+    IGenericRepository<T> Repository<T>() where T : class;
+    Task<int> CompleteAsync();
+    Task BeginTransactionAsync();
+    Task CommitAsync();
+    Task RollbackAsync();
 }

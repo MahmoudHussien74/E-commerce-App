@@ -13,6 +13,13 @@ public class ProductRepository(ApplicationDbContext context) : GenericRepository
 {
     private readonly ApplicationDbContext _context = context;
 
+
+    public async Task<List<Product>> GetByIdsAsync(IEnumerable<int> ids)
+      =>    await _context.Products
+           .Where(p => ids.Contains(p.Id))
+           .ToListAsync();
+
+
     public async Task<Product> GetProductById(int id, CancellationToken cancellationToken)
         => _context.Set<Product>()
                     .Where(x => x.Id == id)

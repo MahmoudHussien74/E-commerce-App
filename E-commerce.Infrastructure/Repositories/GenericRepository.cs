@@ -10,6 +10,14 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
         _context = context;
     }
 
+    public void Add(T entity)
+    {
+        _context.Set<T>().Add(entity);
+    }
+    public void AddRange(IEnumerable<T> entities)
+    {
+        _context.Set<T>().AddRange(entities);
+    }
     public async Task AddAsync(T entity, CancellationToken cancellationToken)
     {
         await _context.Set<T>().AddAsync(entity, cancellationToken);
@@ -59,9 +67,13 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
         return await query.ToListAsync();
 
     }
-    public async Task<T?> GetAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default)
+    public async Task<T?> GetAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default, params Expression<Func<T, object>>[] includes)
     {
-        return await _context.Set<T>().FirstOrDefaultAsync(predicate, cancellationToken: cancellationToken);
+        var query = _context.Set<T>().AsQueryable();
+        foreach (var include in includes)
+            query = query.Include(include);
+
+        return await query.FirstOrDefaultAsync(predicate, cancellationToken: cancellationToken);
     }
 
     public async Task<T?> GetByIdAsync(int id, CancellationToken cancellationToken = default!)
@@ -69,15 +81,23 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
         return await _context.Set<T>().FindAsync(id, cancellationToken);
     }
 
+    public void Update(T entity)
+    {
+        _context.Set<T>().Update(entity);
+    }
     public async Task UpdateAsync(T entity, CancellationToken cancellationToken = default!)
     {
         _context.Set<T>().Update(entity);
         await _context.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<IReadOnlyList<T>> GetListAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<T>> GetListAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default, params Expression<Func<T, object>>[] includes)
     {
-        return await _context.Set<T>().AsNoTracking().Where(predicate).ToListAsync(cancellationToken);
+        var query = _context.Set<T>().AsNoTracking().Where(predicate);
+        foreach (var include in includes)
+            query = query.Include(include);
+
+        return await query.ToListAsync(cancellationToken);
     }
     public IQueryable<T> GetQueryable()
     {
