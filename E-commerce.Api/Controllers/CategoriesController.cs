@@ -28,7 +28,7 @@ public class CategoriesController(ICategoryService categoryService) : Controller
         var result = await _categoryService.AddAsync(request, cancellationToken);
 
         return result.IsSuccess
-                ? CreatedAtAction(nameof(Get), new { id = result.Value}, result.Value)
+                ? CreatedAtAction(nameof(Get), new { id = result.Value }, result.Value)
                 : result.ToProblem();
     }
 

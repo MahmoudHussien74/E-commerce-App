@@ -14,7 +14,7 @@ public class OrdersController(IOrderService orderService) : ControllerBase
     private readonly IOrderService _orderService = orderService;
 
     [HttpPost]
-    public async Task<IActionResult> CreateOrder(OrderRequest orderRequest)
+    public async Task<IActionResult> CreateOrder([FromBody] OrderRequest orderRequest)
     {
         var email = User.FindFirstValue(ClaimTypes.Email);
         if (email is null) return Unauthorized();
@@ -36,7 +36,7 @@ public class OrdersController(IOrderService orderService) : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetOrderById(int id)
+    public async Task<IActionResult> GetOrderById([FromRoute] int id)
     {
         var email = User.FindFirstValue(ClaimTypes.Email);
         if (email is null) return Unauthorized();

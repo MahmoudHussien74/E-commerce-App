@@ -24,6 +24,7 @@ internal class UnitOfWork : IUnitOfWork
         ProductRepository = new ProductRepository(context);
         PhotoRepository = new PhotoRepository(context);
         CustomerBasketRepository = new CustomerBasketRepository(connectionMultiplexer);
+        OrderRepository = new OrderRepository(context);
         AuthService = new AuthService(userManager,jwtProvider);
     }
     public ICategoryRepository CategoryRepository { get; }
@@ -32,7 +33,7 @@ internal class UnitOfWork : IUnitOfWork
     public IPhotoRepository PhotoRepository { get; }
 
     public ICustomerBasketRepository CustomerBasketRepository { get; }
-
+    public IOrderRepository OrderRepository { get; }
     public IAuthService AuthService { get; }
 
     public IGenericRepository<T> Repository<T>() where T : class

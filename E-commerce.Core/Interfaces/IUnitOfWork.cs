@@ -6,6 +6,7 @@ public interface IUnitOfWork
     public IProductRepository  ProductRepository { get; }
     public IPhotoRepository  PhotoRepository { get; }
     public ICustomerBasketRepository  CustomerBasketRepository { get; }
+    public IOrderRepository OrderRepository { get; }
     public IAuthService AuthService { get; }
 
     IGenericRepository<T> Repository<T>() where T : class;

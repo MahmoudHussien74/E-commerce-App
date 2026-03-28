@@ -1,5 +1,6 @@
 using E_commerce.Core.Contracts.Order;
 using E_commerce.Core.Entities.Order;
+using System.Linq;
 
 namespace E_commerce.Core.Services;
 
@@ -57,37 +58,24 @@ public class OrderService(IUnitOfWork unitOfWork, IMapper mapper, IOrderLogic or
 
     public async Task<Result<IReadOnlyList<OrderResponse>>> GetAllOrdersForUserAsync(string BuyerEmail)
     {
-        var orders = await _unitOfWork.Repository<Orders>().GetListAsync(
-            o => o.BuyerEmail == BuyerEmail,
-            default,
-            o => o.OrderItems,
-            o => o.DeliveryMethod
-        );
+        var orders = await _unitOfWork.OrderRepository.GetAllOrdersForUserProjectedAsync(BuyerEmail);
 
-        var sortedOrders = orders.OrderByDescending(o => o.OrderDate).ToList();
-        var response = _mapper.Map<IReadOnlyList<OrderResponse>>(sortedOrders);
-        return Result.Success(response);
+        return Result.Success(orders);
     }
 
     public async Task<Result<IReadOnlyList<DeliveryMethodResponse>>> GetDeliveryMethodAsync()
     {
-        var methods = await _unitOfWork.Repository<DeliveryMethod>().GetAllAsync();
-        var response = _mapper.Map<IReadOnlyList<DeliveryMethodResponse>>(methods);
-        return Result.Success(response);
+        var methods = await _unitOfWork.OrderRepository.GetDeliveryMethodsProjectedAsync();
+        return Result.Success(methods);
     }
 
     public async Task<Result<OrderResponse>> GetOrderByIdAsync(int Id, string BuyerEmail)
     {
-        var order = await _unitOfWork.Repository<Orders>().GetAsync(
-            o => o.Id == Id && o.BuyerEmail == BuyerEmail,
-            default,
-            o => o.OrderItems,
-            o => o.DeliveryMethod
-        );
+        var order = await _unitOfWork.OrderRepository.GetOrdersForUserProjectedAsync(BuyerEmail, Id);
 
         if (order is null)
             return Result.Failure<OrderResponse>(new Error("Order.NotFound", "The requested order was not found.", 404));
 
-        return Result.Success(_mapper.Map<OrderResponse>(order));
+        return Result.Success(order);
     }
 }
