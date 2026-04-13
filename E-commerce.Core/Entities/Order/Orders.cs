@@ -5,6 +5,7 @@ public class Orders : BaseEntity<int>
     public string BuyerEmail { get; set; } = string.Empty;
     public decimal SubTotal { get; set; }
     public DateTime OrderDate { get; set; } = DateTime.Now;
+    public string PaymentIntentId { get; set; } 
     public ShippingAddress ShippingAddress { get; set; }
     public DeliveryMethod DeliveryMethod { get; set; }
     public IReadOnlyList<OrderItem> OrderItems { get; set; } = [];

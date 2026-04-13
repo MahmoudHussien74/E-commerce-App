@@ -13,7 +13,6 @@ public class CategoriesController(ICategoryService categoryService) : Controller
 
         return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
     }
-
     [HttpGet("{id}")]
     public async Task<IActionResult> Get([FromRoute] int id, CancellationToken cancellationToken)
     {

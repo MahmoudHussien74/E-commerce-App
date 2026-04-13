@@ -39,9 +39,16 @@ public class OrderService(IUnitOfWork unitOfWork, IMapper mapper, IOrderLogic or
 
         var order = orderBuilderResult.Value;
 
+        var existingOrder = await _unitOfWork.Repository<Orders>().GetAsync(x => x.PaymentIntentId == basketResult.Value.PaymentIntentId);
+        
         await _unitOfWork.BeginTransactionAsync();
         try
         {
+            if (existingOrder is not null)
+            {
+                await _unitOfWork.Repository<Orders>().DeleteAsync(existingOrder);
+            }
+
             _unitOfWork.Repository<Orders>().Add(order);
             await _unitOfWork.CommitAsync();
         }

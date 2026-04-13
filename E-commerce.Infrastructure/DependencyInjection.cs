@@ -7,6 +7,7 @@ public static class DependencyInjection
         services.AddRepositories()
                 .AddPersistence(configuration)
                 .AddCaching(configuration)
+                .AddPaymentConfigurations(configuration)
                 .AddIdentityConfiguration();
 
         return services;
@@ -17,6 +18,7 @@ public static class DependencyInjection
         services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<IPaymentService, PaymentService>();
 
         return services;
     }
@@ -47,6 +49,13 @@ public static class DependencyInjection
     {
         services.AddIdentityCore<User>()
             .AddEntityFrameworkStores<ApplicationDbContext>();
+
+        return services;
+    }
+
+    private static IServiceCollection AddPaymentConfigurations(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.Configure<PaymentSettings>(configuration.GetSection("StripeSettings"));
 
         return services;
     }

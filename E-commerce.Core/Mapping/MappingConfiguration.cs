@@ -37,6 +37,9 @@ public class MappingConfiguration : Profile
             .ForMember(dest => dest.ShippingPrice, opt => opt.MapFrom(src => src.DeliveryMethod.Price))
             .ForMember(dest => dest.Total, opt => opt.MapFrom(src => src.SubTotal + src.DeliveryMethod.Price));
         CreateMap<OrderItem, OrderItemResponse>().ReverseMap();
+        CreateMap<ProductRequest, Product>()
+            .ForMember(dest => dest.Photos, opt => opt.Ignore());
+
         CreateMap<Product, ProductResponse>();
     }
 }

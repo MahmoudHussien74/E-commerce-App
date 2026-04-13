@@ -34,7 +34,6 @@ public class ImageMangementService(IFileProvider fileProvider) : IImageMangement
         }
              return saveImage;
     }
-
     public Task DeleteImageAsync(string src)
     {
         var info = _fileProvider.GetFileInfo(src);

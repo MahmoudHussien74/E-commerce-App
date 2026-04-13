@@ -31,7 +31,8 @@ public class OrderLogic : IOrderLogic
             DeliveryMethod = deliveryMethod,
             OrderItems = orderItems,
             SubTotal = subTotal,
-            Status = Status.Pending
+            Status = Status.Pending,
+            PaymentIntentId = basket.PaymentIntentId
         };
         return Result.Success(order);
     }
