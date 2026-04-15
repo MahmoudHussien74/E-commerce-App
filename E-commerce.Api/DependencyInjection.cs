@@ -18,7 +18,17 @@ public static class DependencyInjection
                 .AddControllerServices()
                 .AddGlobalExceptionServices()
                 .AddFileServices()
-                .AddAuthSystem(configuration);
+                .AddAuthSystem(configuration)
+                .AddHealthCheckServices(configuration);
+
+        return services;
+    }
+
+    private static IServiceCollection AddHealthCheckServices(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddHealthChecks()
+            .AddSqlServer(configuration.GetConnectionString("EcommerceDatabase")!, name: "SQLServer")
+            .AddRedis(configuration.GetConnectionString("redis")!, name: "Redis");
 
         return services;
     }
