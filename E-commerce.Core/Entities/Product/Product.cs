@@ -9,6 +9,7 @@ public class Product:BaseEntity<int>
     public decimal OldPrice { get; set; }
     public decimal NewPrice { get; set; }
     public int CategoryId { get; set; }
+    public int StockQuantity { get; set; }
 
     [ForeignKey(nameof(CategoryId))]
     public virtual Category  Category { get; set; } = null!;

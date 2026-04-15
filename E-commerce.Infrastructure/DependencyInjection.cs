@@ -19,6 +19,8 @@ public static class DependencyInjection
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IPaymentService, PaymentService>();
+        services.AddScoped<IStripeService, StripeService>();
+        services.AddScoped<IInventoryService, InventoryService>();
 
         return services;
     }
