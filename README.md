@@ -351,7 +351,3 @@ GET /health
 This project is licensed under the MIT License.
 
 ---
-
-<div align="center">
-  Built with ❤️ by <a href="https://github.com/MahmoudHussien74">Mahmoud Hussien</a>
-</div>
