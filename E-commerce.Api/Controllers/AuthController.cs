@@ -5,9 +5,10 @@ namespace E_commerce.Api.Controllers;
 /// </summary>
 [Route("api/[controller]")]
 [ApiController]
-public class AuthController(IAuthService authService) : ControllerBase
+public class AuthController(IAuthService authService,ILogger<AuthController> logger) : ControllerBase
 {
     private readonly IAuthService _authService = authService;
+    private readonly ILogger<AuthController> _logger = logger;
 
     /// <summary>
     /// Register a new user account.
@@ -16,8 +17,10 @@ public class AuthController(IAuthService authService) : ControllerBase
     /// <response code="201">User created successfully. Returns the new user's ID and basic info.</response>
     /// <response code="400">Validation failed or email already in use.</response>
     [HttpPost("register")]
+    [EnableRateLimiting("ipLimiter")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status429TooManyRequests)]
     public async Task<IActionResult> Register([FromBody] RegisterRequest request)
     {
         var result = await _authService.RegisterAsync(request, HttpContext.RequestAborted);
@@ -35,11 +38,14 @@ public class AuthController(IAuthService authService) : ControllerBase
     /// <response code="400">Invalid request body.</response>
     /// <response code="401">Email or password is incorrect.</response>
     [HttpPost("login")]
+    [EnableRateLimiting("ipLimiter")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status429TooManyRequests)]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
+        _logger.LogInformation("Login attempt for email: {Email}", request.Email);
         var result = await _authService.LoginAsync(request, HttpContext.RequestAborted);
 
         return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
@@ -53,9 +59,11 @@ public class AuthController(IAuthService authService) : ControllerBase
     /// <response code="400">Refresh token is missing or malformed.</response>
     /// <response code="401">Refresh token has expired or is invalid.</response>
     [HttpPost("refresh-token")]
+    [EnableRateLimiting("ipLimiter")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status429TooManyRequests)]
     public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest request)
     {
         var result = await _authService.RefreshTokenAsync(request, HttpContext.RequestAborted);

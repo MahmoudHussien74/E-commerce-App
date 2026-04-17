@@ -1,5 +1,6 @@
 using E_commerce.Application.Abstractions.Authorization;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace E_commerce.Api.Controllers;
 
@@ -22,9 +23,11 @@ public class OrdersController(IOrderService orderService) : ControllerBase
     /// <response code="400">Validation failed or basket is empty.</response>
     /// <response code="401">User is not authenticated.</response>
     [HttpPost]
+    [EnableRateLimiting("userLimiter")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status429TooManyRequests)]
     public async Task<IActionResult> CreateOrder([FromBody] OrderRequest orderRequest)
     {
         var userId = User.GetUserId();
@@ -37,7 +40,6 @@ public class OrdersController(IOrderService orderService) : ControllerBase
             ? CreatedAtAction(nameof(GetOrderById), new { id = result.Value.Id }, result.Value)
             : result.ToProblem();
     }
-
     /// <summary>
     /// Get all orders belonging to the authenticated user.
     /// </summary>

@@ -1,13 +1,15 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
-using System.Text;
-using System.Reflection;
 using E_commerce.Infrastructure.Authentication;
 using E_commerce.Infrastructure.Authentication.Permissions;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.Extensions.FileProviders;
 using E_commerce.Infrastructure.Service;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.FileProviders;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using System.Reflection;
+using System.Text;
+using System.Threading.RateLimiting;
 
 namespace E_commerce.Api;
 
@@ -22,7 +24,71 @@ public static class DependencyInjection
                 .AddGlobalExceptionServices()
                 .AddFileServices()
                 .AddAuthSystem(configuration)
+                .AddRateLimiterServices()
                 .AddHealthCheckServices(configuration);
+
+        return services;
+    }
+
+    public static IServiceCollection AddRateLimiterServices(this IServiceCollection services)
+    {
+        services.AddRateLimiter(rateLimiterOptions =>
+        {
+            // Return 429 Too Many Requests when limit is exceeded
+            rateLimiterOptions.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+            // ── ipLimiter ────────────────────────────────────────────────────
+            // Applied on: Login, Register, RefreshToken
+            // Purpose: Block brute-force attacks and registration spam
+            // Limit: 10 requests / 1 minute per IP address
+            rateLimiterOptions.AddPolicy("ipLimiter", httpContext =>
+                RateLimitPartition.GetFixedWindowLimiter(
+                    partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                    factory: _ => new FixedWindowRateLimiterOptions
+                    {
+                        PermitLimit = 10,
+                        Window = TimeSpan.FromMinutes(1),
+                        QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                        QueueLimit = 0
+                    }
+                )
+            );
+
+            // ── userLimiter ──────────────────────────────────────────────────
+            // Applied on: CreatePayment, CreateOrder, CreateBasket
+            // Purpose: Prevent per-user abuse of write-heavy endpoints
+            // Limit: 30 requests / 1 minute per authenticated userId (falls back to IP)
+            rateLimiterOptions.AddPolicy("userLimiter", httpContext =>
+                RateLimitPartition.GetFixedWindowLimiter(
+                    partitionKey: httpContext.User.GetUserId()
+                                  ?? httpContext.Connection.RemoteIpAddress?.ToString()
+                                  ?? "anonymous",
+                    factory: _ => new FixedWindowRateLimiterOptions
+                    {
+                        PermitLimit = 30,
+                        Window = TimeSpan.FromMinutes(1),
+                        QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                        QueueLimit = 0
+                    }
+                )
+            );
+
+            // ── GlobalLimiter (Concurrency) ──────────────────────────────────
+            // Applied automatically to ALL endpoints
+            // Purpose: Prevent server overload under high traffic
+            // Limit: Max 1000 simultaneous requests, queue up to 100
+            rateLimiterOptions.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(
+                _ => RateLimitPartition.GetConcurrencyLimiter(
+                    partitionKey: "global",
+                    factory: _ => new ConcurrencyLimiterOptions
+                    {
+                        PermitLimit = 1000,
+                        QueueLimit = 100,
+                        QueueProcessingOrder = QueueProcessingOrder.OldestFirst
+                    }
+                )
+            );
+        });
 
         return services;
     }

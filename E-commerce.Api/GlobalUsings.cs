@@ -18,3 +18,4 @@ global using E_commerce.Infrastructure;
 global using E_commerce.Infrastructure.Data;
 global using HealthChecks.UI.Client;
 global using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+global using Microsoft.AspNetCore.RateLimiting;

@@ -1,15 +1,21 @@
+using Serilog;
+
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddApiDependencies(builder.Configuration);
 
+
+builder.Host.UseSerilog((context, configuration) =>
+         configuration.ReadFrom.Configuration(context.Configuration));
+
+
 var app = builder.Build();
 
-// Swagger is enabled in all environments to support deployment testing & API consumers.
-// To restrict to Development only, wrap these two calls inside: if (app.Environment.IsDevelopment())
+app.UseSerilogRequestLogging();
 app.UseSwagger();
 app.UseSwaggerUI(options =>
 {
     options.SwaggerEndpoint("/swagger/v1/swagger.json", "E-Commerce API v1");
-    options.RoutePrefix = "swagger";          // accessible at /swagger
+    options.RoutePrefix = "swagger";         
     options.DocumentTitle = "E-Commerce API";
 });
 
@@ -19,6 +25,7 @@ app.UseExceptionHandler();
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseRateLimiter();
 
 app.MapControllers();
 
@@ -26,7 +33,5 @@ app.MapHealthChecks("/health", new HealthCheckOptions
 {
     ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
 });
-
-
 
 app.Run();
