@@ -90,6 +90,8 @@ A fully-featured, production-ready E-Commerce REST API implementing **Clean Arch
 | 🚚 **Delivery Methods** | Full CRUD for admin management |
 | 💳 **Payments** | Stripe PaymentIntent, webhook for status sync |
 | 🔑 **Authorization** | Roles + fine-grained permission claims per endpoint |
+| 🚦 **Rate Limiting** | IP-based limiters, User-based limiters, and Global concurrency protection |
+| 📝 **Logging** | Structured logging with Serilog, writing to file & console |
 
 ---
 
@@ -107,6 +109,8 @@ A fully-featured, production-ready E-Commerce REST API implementing **Clean Arch
 | **Documentation** | Swagger / Swashbuckle |
 | **Health Checks** | AspNetCore.HealthChecks.SqlServer + Redis |
 | **Image Storage** | Local file system (wwwroot) |
+| **Logging** | Serilog (Structured Logging) |
+| **Rate Limiting** | ASP.NET Core RateLimiter |
 
 ---
 
@@ -235,6 +239,26 @@ The API implements a **custom claim-based permission system** on top of ASP.NET 
 | `deliverymethods:read/create/update/delete` | Manage delivery methods |
 | `payments:create` | Initiate payments |
 | `basket:write` | Manage shopping basket |
+
+---
+
+## 🚦 Rate Limiting
+
+To prevent abuse and ensure high availability, the API implements several Rate Limiting mechanisms:
+
+- **IP-Based Limiter (`ipLimiter`)**: Applied to Auth endpoints (`/login`, `/register`, `/refresh`) to prevent brute-force attacks and spam. Limit: **10 requests / 1 minute** per IP.
+- **User-Based Limiter (`userLimiter`)**: Applied to write-heavy endpoints (like creating Orders or Payments) to prevent per-user abuse. Limit: **30 requests / 1 minute** per authenticated user.
+- **Global Concurrency Limiter**: Applied automatically to **ALL** endpoints. Prevents server overload by limiting maximum concurrent requests to **1000** (queue limits up to 100 requests).
+- **Status Code**: Exceeding the limits will return `429 Too Many Requests`.
+
+---
+
+## 📝 Logging (Serilog)
+
+The system leverages **Serilog** for advanced, structured logging.
+- **Console Sink**: Used for real-time monitoring.
+- **File Sink**: Daily rolling logs configured in JSON format for easy ingestion by log aggregators (e.g., ELK stack, Seq).
+- **Contextual Enrichment**: Logs automatically include Thread IDs, Machine Names, and HTTP request contexts.
 
 ---
 
