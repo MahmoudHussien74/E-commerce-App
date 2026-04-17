@@ -165,7 +165,8 @@ E-commerce/
 ## 📡 API Endpoints
 
 <div align="center">
-  <img src="docs/images/swagger.png" alt="Swagger UI Preview" width="800"/>
+  <img src="docs/images/swaggerApi.png" alt="Swagger UI Preview Part 1" width="800" style="margin-bottom: 15px;"/>
+  <img src="docs/images/SwaggerApi_.png" alt="Swagger UI Preview Part 2" width="800"/>
 </div>
 
 ### 🔐 Auth — `/api/Auth`
