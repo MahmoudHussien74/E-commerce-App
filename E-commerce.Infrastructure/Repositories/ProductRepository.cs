@@ -1,38 +1,36 @@
-using E_commerce.Core.Common;
-using E_commerce.Core.Contracts.Common;
+using E_commerce.Application.Common;
+using E_commerce.Application.Contracts.Common;
 using E_commerce.Core.Entities.Product;
-using E_commerce.Core.Interfaces;
-using E_commerce.Infrastructure.Data;
 using E_commerce.Infrastructure.Extensions;
-using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
 namespace E_commerce.Infrastructure.Repositories;
 
-public class ProductRepository(ApplicationDbContext context) : GenericRepository<Product>(context), IProductRepository
+internal sealed class ProductRepository(ApplicationDbContext context) : GenericRepository<Product>(context), IProductRepository
 {
     private readonly ApplicationDbContext _context = context;
 
 
-    public async Task<List<Product>> GetByIdsAsync(IEnumerable<int> ids)
+    public async Task<List<Product>> GetByIdsAsync(IEnumerable<int> ids, CancellationToken cancellationToken = default)
       =>    await _context.Products
+           .Include(x => x.Photos)
            .Where(p => ids.Contains(p.Id))
-           .ToListAsync();
+           .ToListAsync(cancellationToken);
 
 
-    public async Task<Product> GetProductById(int id, CancellationToken cancellationToken)
-        => _context.Set<Product>()
+    public async Task<Product?> GetProductByIdAsync(int id, CancellationToken cancellationToken = default)
+        => await _context.Set<Product>()
                     .Where(x => x.Id == id)
                     .Include(x => x.Category)
                     .Include(x => x.Photos)
                     .AsNoTracking()
-                    .FirstOrDefault()!;
+                    .FirstOrDefaultAsync(cancellationToken);
     
-    public async Task<Product> GetProductIncludeCategoryAndPhotoAsync(int id, CancellationToken cancellationToken)
-        => _context.Set<Product>()
+    public async Task<Product?> GetProductWithPhotosAsync(int id, CancellationToken cancellationToken = default)
+        => await _context.Set<Product>()
                     .Include(x => x.Category)
                     .Include(x => x.Photos)
-                    .FirstOrDefault(x => x.Id == id)!;
+                    .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
     public async Task<PaginatedList<Product>> GetAllProductsAsync(RequestFilter filters, CancellationToken cancellationToken)
     {
@@ -53,7 +51,8 @@ public class ProductRepository(ApplicationDbContext context) : GenericRepository
         };
         
         query = query.ApplySort(filters.SortColumn, filters.SortDirection, columnsMap);
-
-        return await PaginatedList<Product>.CreateAsync(query, filters.PageNumber, filters.PageSize, cancellationToken);
+        var count = await query.CountAsync(cancellationToken);
+        var items = await query.Skip((filters.PageNumber - 1) * filters.PageSize).Take(filters.PageSize).ToListAsync(cancellationToken);
+        return new PaginatedList<Product>(items, filters.PageNumber, count, filters.PageSize);
     }
 }

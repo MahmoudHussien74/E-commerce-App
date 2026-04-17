@@ -1,31 +1,27 @@
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore.Storage;
-using E_commerce.Core.Interfaces;
-using E_commerce.Core.Entities;
-using E_commerce.Infrastructure.Data;
-using StackExchange.Redis;
 
 namespace E_commerce.Infrastructure.Repositories;
 
 internal class UnitOfWork : IUnitOfWork
 {
     private readonly ApplicationDbContext _context;
-    private readonly UserManager<User> _userManager;
-    private readonly IJwtProvider _jwtProvider;
-    private readonly IConnectionMultiplexer _connectionMultiplexer;
 
-    public UnitOfWork(ApplicationDbContext context, UserManager<User> userManager, IJwtProvider jwtProvider, IConnectionMultiplexer connectionMultiplexer)
+    public UnitOfWork(
+        ApplicationDbContext context,
+        ICategoryRepository categoryRepository,
+        IProductRepository productRepository,
+        IPhotoRepository photoRepository,
+        ICustomerBasketRepository customerBasketRepository,
+        IOrderRepository orderRepository,
+        IRefreshTokenRepository refreshTokens)
     {
         _context = context;
-        _userManager = userManager;
-        _jwtProvider = jwtProvider;
-        _connectionMultiplexer = connectionMultiplexer;
-        CategoryRepository = new CategoryRepository(context);
-        ProductRepository = new ProductRepository(context);
-        PhotoRepository = new PhotoRepository(context);
-        CustomerBasketRepository = new CustomerBasketRepository(connectionMultiplexer);
-        OrderRepository = new OrderRepository(context);
-        AuthService = new AuthService(userManager,jwtProvider);
+        CategoryRepository = categoryRepository;
+        ProductRepository = productRepository;
+        PhotoRepository = photoRepository;
+        CustomerBasketRepository = customerBasketRepository;
+        OrderRepository = orderRepository;
+        RefreshTokens = refreshTokens;
     }
     public ICategoryRepository CategoryRepository { get; }
 
@@ -34,35 +30,34 @@ internal class UnitOfWork : IUnitOfWork
 
     public ICustomerBasketRepository CustomerBasketRepository { get; }
     public IOrderRepository OrderRepository { get; }
-    public IAuthService AuthService { get; }
+    public IRefreshTokenRepository RefreshTokens { get; }
 
     public IGenericRepository<T> Repository<T>() where T : class
     {
         return new GenericRepository<T>(_context);
     }
 
-    public async Task<int> CompleteAsync()
+    public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
-        return await _context.SaveChangesAsync();
+        return await _context.SaveChangesAsync(cancellationToken);
     }
 
     private IDbContextTransaction? _transaction;
 
-    public async Task BeginTransactionAsync()
+    public async Task BeginTransactionAsync(CancellationToken cancellationToken = default)
     {
-        _transaction = await _context.Database.BeginTransactionAsync();
+        _transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
     }
 
-    public async Task CommitAsync()
+    public async Task CommitTransactionAsync(CancellationToken cancellationToken = default)
     {
         try
         {
-            await _context.SaveChangesAsync();
-            if (_transaction != null) await _transaction.CommitAsync();
+            if (_transaction != null) await _transaction.CommitAsync(cancellationToken);
         }
         catch
         {
-            await RollbackAsync();
+            await RollbackTransactionAsync(cancellationToken);
             throw;
         }
         finally
@@ -75,11 +70,11 @@ internal class UnitOfWork : IUnitOfWork
         }
     }
 
-    public async Task RollbackAsync()
+    public async Task RollbackTransactionAsync(CancellationToken cancellationToken = default)
     {
         if (_transaction != null)
         {
-            await _transaction.RollbackAsync();
+            await _transaction.RollbackAsync(cancellationToken);
             _transaction.Dispose();
             _transaction = null;
         }

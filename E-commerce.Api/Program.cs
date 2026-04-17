@@ -1,16 +1,17 @@
-using HealthChecks.UI.Client;
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddApiDependencies(builder.Configuration);
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
+// Swagger is enabled in all environments to support deployment testing & API consumers.
+// To restrict to Development only, wrap these two calls inside: if (app.Environment.IsDevelopment())
+app.UseSwagger();
+app.UseSwaggerUI(options =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+    options.SwaggerEndpoint("/swagger/v1/swagger.json", "E-Commerce API v1");
+    options.RoutePrefix = "swagger";          // accessible at /swagger
+    options.DocumentTitle = "E-Commerce API";
+});
 
 app.UseHttpsRedirection();
 

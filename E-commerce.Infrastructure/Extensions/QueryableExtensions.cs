@@ -1,5 +1,5 @@
 using System.Linq.Expressions;
-using E_commerce.Core.Common;
+using E_commerce.Application.Common;
 
 namespace E_commerce.Infrastructure.Extensions;
 
@@ -27,9 +27,4 @@ public static class QueryableExtensions
         return query;
     }
 
-    public static async Task<PaginatedList<T>> ToPaginatedListAsync<T>(this IQueryable<T> query, int pageNumber, int pageSize)
-    {
-        return await PaginatedList<T>.CreateAsync(query, pageNumber, pageSize);
-    }
 }
-

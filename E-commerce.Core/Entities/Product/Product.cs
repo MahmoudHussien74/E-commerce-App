@@ -1,5 +1,3 @@
-using System.ComponentModel.DataAnnotations.Schema;
-
 namespace E_commerce.Core.Entities.Product;
 
 public class Product:BaseEntity<int>
@@ -10,8 +8,6 @@ public class Product:BaseEntity<int>
     public decimal NewPrice { get; set; }
     public int CategoryId { get; set; }
     public int StockQuantity { get; set; }
-
-    [ForeignKey(nameof(CategoryId))]
     public virtual Category  Category { get; set; } = null!;
 
     public List<Photo> Photos { get; set; } = new ();

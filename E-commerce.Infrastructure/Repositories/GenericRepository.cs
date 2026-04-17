@@ -18,38 +18,10 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
     {
         _context.Set<T>().AddRange(entities);
     }
-    public async Task AddAsync(T entity, CancellationToken cancellationToken)
-    {
-        await _context.Set<T>().AddAsync(entity, cancellationToken);
-        await _context.SaveChangesAsync(cancellationToken);
-    }
-    public async Task AddRangeAsync(List<T> entity, CancellationToken cancellationToken)
-    {
-        await _context.Set<T>().AddRangeAsync(entity);
-        await _context.SaveChangesAsync(cancellationToken);
-    }
-
-    public async Task DeleteAsync(int id, CancellationToken cancellationToken)
-    {
-        var entity = await _context.Set<T>().FindAsync(id);
-        if (entity is not null)
-        {
-            _context.Remove(entity);
-            await _context.SaveChangesAsync(cancellationToken);
-        }
-    }
     public async Task DeleteAsync(T entity, CancellationToken cancellationToken = default)
     {
         _context.Set<T>().Remove(entity);
-        await _context.SaveChangesAsync(cancellationToken);
     }
-
-    public async Task DeleteRangeAsync(IEnumerable<T> entities, CancellationToken cancellationToken)
-    {
-        _context.Set<T>().RemoveRange(entities);
-        await _context.SaveChangesAsync(cancellationToken);
-    }
-
 
     public async Task<IReadOnlyList<T>> GetAllAsync(CancellationToken cancellationToken = default!)
     {
@@ -77,20 +49,12 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
     }
 
     public async Task<T?> GetByIdAsync(int id, CancellationToken cancellationToken = default!)
-    {
-        return await _context.Set<T>().FindAsync(id, cancellationToken);
-    }
+        => await _context.Set<T>().FindAsync([id], cancellationToken);
 
     public void Update(T entity)
     {
         _context.Set<T>().Update(entity);
     }
-    public async Task UpdateAsync(T entity, CancellationToken cancellationToken = default!)
-    {
-        _context.Set<T>().Update(entity);
-        await _context.SaveChangesAsync(cancellationToken);
-    }
-
     public async Task<IReadOnlyList<T>> GetListAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default, params Expression<Func<T, object>>[] includes)
     {
         var query = _context.Set<T>().AsNoTracking().Where(predicate);
@@ -112,5 +76,4 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
 
         return query;
     }
-
 }

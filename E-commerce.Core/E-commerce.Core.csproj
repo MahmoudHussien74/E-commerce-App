@@ -8,21 +8,19 @@
   </PropertyGroup>
 
   <ItemGroup>
-	  
-    <PackageReference Include="AutoMapper" Version="16.1.1" />
-	  
-    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
-	  
-    <PackageReference Include="MediatR" Version="14.1.0" />
-	  
-    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.9" />
-	  
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.5" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.5" />
-    <PackageReference Include="FluentValidation" Version="12.1.1" />
-    <PackageReference Include="Microsoft.Extensions.FileProviders.Abstractions" Version="10.0.5" />
-    <PackageReference Include="Stripe.net" Version="51.0.0" />
-    <PackageReference Include="System.Linq.Dynamic.Core" Version="1.7.1" />
+    <Compile Remove="Common\**\*.cs" />
+    <Compile Remove="Contracts\**\*.cs" />
+    <Compile Remove="DTOs\**\*.cs" />
+    <Compile Remove="Errors\**\*.cs" />
+    <Compile Remove="Interfaces\**\*.cs" />
+    <Compile Remove="Mapping\**\*.cs" />
+    <Compile Remove="Services\**\*.cs" />
+    <Compile Remove="DependencyInjection.cs" />
+    <Compile Remove="GlobalUsings.cs" />
+    <Compile Remove="Entities\ApplicationRole.cs" />
+    <Compile Remove="Entities\AuthEntities.cs" />
+    <Compile Remove="Entities\IAuthService.cs" />
+    <Compile Remove="Entities\Permissions.cs" />
   </ItemGroup>
 
 </Project>

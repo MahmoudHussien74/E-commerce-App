@@ -1,10 +1,22 @@
-namespace E_commerce.Infrastructure.Authentication;
+using System.ComponentModel.DataAnnotations;
 
-public class JwtOptions
+namespace E_commerce.Infrastructure.Authentication
 {
-    public static string SectionName => "Jwt";
-    public string Key { get; set; } = string.Empty;
-    public string Issuer { get; set; } = string.Empty;
-    public string Audience { get; set; } = string.Empty;
-    public int ExpireInMinutes { get; set; } = 60;
+    public class JwtOptions
+    {
+        public const string SectionName = "Jwt";
+        [Required]
+        public string Key { get; init; } = string.Empty;
+        [Required]
+        public string Issuer { get; init; } = string.Empty;
+        [Required]
+        public string Audience { get; init; } = string.Empty;
+        [Range(1,int.MaxValue)]
+        public int ExpiryMinutes { get; init; }
+
+        public string EffectiveKey
+            => string.IsNullOrWhiteSpace(Key)
+                ? Environment.GetEnvironmentVariable("Jwt__Key") ?? string.Empty
+                : Key;
+    }
 }

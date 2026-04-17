@@ -1,5 +1,4 @@
 using E_commerce.Core.Entities.Order;
-using E_commerce.Core.Interfaces;
 using Microsoft.Extensions.Logging;
 
 namespace E_commerce.Infrastructure.Service;
@@ -9,13 +8,13 @@ public class InventoryService(IUnitOfWork unitOfWork, ILogger<InventoryService> 
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly ILogger<InventoryService> _logger = logger;
 
-    public async Task<bool> DeductStockAsync(IEnumerable<OrderItem> items)
+    public async Task<bool> DeductStockAsync(IEnumerable<OrderItem> items, CancellationToken cancellationToken = default)
     {
         try
         {
             foreach (var item in items)
             {
-                var product = await _unitOfWork.ProductRepository.GetByIdAsync(item.ProductItemId);
+                var product = await _unitOfWork.ProductRepository.GetByIdAsync(item.ProductItemId, cancellationToken);
                 
                 if (product == null)
                 {
@@ -27,7 +26,7 @@ public class InventoryService(IUnitOfWork unitOfWork, ILogger<InventoryService> 
                 {
                     _logger.LogCritical("Insufficient stock for product {ProductName}. Available: {Available}, Requested: {Requested}", 
                         product.Name, product.StockQuantity, item.Quntity);
-                    return false; // Prevent negative stock
+                    return false;
                 }
 
                 _logger.LogInformation("Deducting stock for {ProductName}: {Old} -> {New}", 
@@ -36,6 +35,7 @@ public class InventoryService(IUnitOfWork unitOfWork, ILogger<InventoryService> 
                 product.StockQuantity -= item.Quntity;
                 _unitOfWork.ProductRepository.Update(product);
             }
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
             return true;
         }
         catch (Exception ex)

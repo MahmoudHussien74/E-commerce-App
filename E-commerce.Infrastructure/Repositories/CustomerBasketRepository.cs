@@ -1,27 +1,24 @@
 using System.Text.Json;
-
 namespace E_commerce.Infrastructure.Repositories;
-
-public class CustomerBasketRepository : ICustomerBasketRepository
+internal sealed class CustomerBasketRepository : ICustomerBasketRepository
 {
     private readonly IDatabase _database;
-    private readonly IConnectionMultiplexer _redis;
 
     public CustomerBasketRepository(IConnectionMultiplexer redis)
     {
         _database = redis.GetDatabase();
     }
-    public async Task<Result> DeleteBasketAsync(string id)
+    public async Task<Result> DeleteBasketAsync(string buyerId, CancellationToken cancellationToken = default)
     {
-        var result = await _database.KeyDeleteAsync(id);
+        var result = await _database.KeyDeleteAsync(buyerId);
 
         return result ? Result.Success()
             : Result.Failure(BasketErrors.DeletionFailed);
     }
 
-    public async Task<Result<CustomerBasket>> GetBasketAsync(string id)
+    public async Task<Result<CustomerBasket>> GetBasketAsync(string buyerId, CancellationToken cancellationToken = default)
     {
-        var result = await _database.StringGetAsync(id);
+        var result = await _database.StringGetAsync(buyerId);
         
         if (result.IsNullOrEmpty)
             return Result.Failure<CustomerBasket>(BasketErrors.NotFound);
@@ -30,7 +27,7 @@ public class CustomerBasketRepository : ICustomerBasketRepository
         return Result.Success(basket);
     }
 
-    public async Task<Result<CustomerBasket>> UpdateBasketAsync(CustomerBasket basket)
+    public async Task<Result<CustomerBasket>> UpdateBasketAsync(CustomerBasket basket, CancellationToken cancellationToken = default)
     {
         var created = await _database.StringSetAsync(
             basket.Id,

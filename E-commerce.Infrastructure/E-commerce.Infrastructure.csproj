@@ -1,20 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <RootNamespace>E_commerce.Infrastructure</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
-
+  
   <ItemGroup>
-    <PackageReference Include="AutoMapper" Version="16.1.1" />
-    <PackageReference Include="DocumentFormat.OpenXml" Version="3.5.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="10.0.5" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.5" />
-    <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="10.0.5" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.5" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.2">
       <PrivateAssets>all</PrivateAssets>
@@ -32,7 +27,22 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\E-commerce.Application\E-commerce.Application.csproj" />
     <ProjectReference Include="..\E-commerce.Core\E-commerce.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+
+    <Compile Remove="Data\Configurations\IdentityRoleClaimConfiguration.cs" />
+    <Compile Remove="Data\Configurations\IdentityRoleConfiguration.cs" />
+    <Compile Remove="Data\Configurations\IdentityUserConfiguration.cs" />
+    <Compile Remove="Data\Configurations\IdentityUserRoleConfiguration.cs" />
+    <Compile Remove="Data\Configurations\RoleClaimConfiguration.cs" />
+    <Compile Remove="Data\Configurations\RoleConfiguration.cs" />
+    <Compile Remove="Data\Configurations\UserConfigurations.cs" />
+    <Compile Remove="Data\Configurations\UserRoleConfiguration.cs" />
+    <Compile Remove="Service\PaymentService.cs" />
   </ItemGroup>
 
 </Project>

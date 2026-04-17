@@ -1,29 +1,38 @@
-using E_commerce.Core.Interfaces;
 using Microsoft.Extensions.Options;
 using Stripe;
 
 namespace E_commerce.Infrastructure.Service;
 
-public class StripeService(IOptions<PaymentSettings> options) : IStripeService
+public class StripeService(IOptions<PaymentSettings> options) : IStripeGateway
 {
     private readonly PaymentSettings _options = options.Value;
 
-    public async Task<PaymentIntent> CreatePaymentIntentAsync(PaymentIntentCreateOptions createOptions)
+    public async Task<PaymentIntentResult> CreatePaymentIntentAsync(long amount, string currency, string basketId, CancellationToken cancellationToken = default)
     {
         StripeConfiguration.ApiKey = _options.SecretKey;
         var service = new PaymentIntentService();
-        return await service.CreateAsync(createOptions);
+        var intent = await service.CreateAsync(new PaymentIntentCreateOptions
+        {
+            Amount = amount,
+            Currency = currency,
+            PaymentMethodTypes = ["card"],
+            Metadata = new Dictionary<string, string> { ["basketId"] = basketId }
+        }, cancellationToken: cancellationToken);
+
+        return new PaymentIntentResult(intent.Id, intent.ClientSecret);
     }
 
-    public async Task<PaymentIntent> UpdatePaymentIntentAsync(string id, PaymentIntentUpdateOptions updateOptions)
+    public async Task UpdatePaymentIntentAsync(string id, long amount, CancellationToken cancellationToken = default)
     {
         StripeConfiguration.ApiKey = _options.SecretKey;
         var service = new PaymentIntentService();
-        return await service.UpdateAsync(id, updateOptions);
+        await service.UpdateAsync(id, new PaymentIntentUpdateOptions { Amount = amount }, cancellationToken: cancellationToken);
     }
 
-    public Event ConstructEvent(string json, string signature, string webhookSecret)
+    public Task<PaymentWebhookEvent> ParseWebhookAsync(string json, string signature, CancellationToken cancellationToken = default)
     {
-        return EventUtility.ConstructEvent(json, signature, webhookSecret);
+        var stripeEvent = EventUtility.ConstructEvent(json, signature, _options.WebhookSecret);
+        var paymentIntent = (PaymentIntent)stripeEvent.Data.Object;
+        return Task.FromResult(new PaymentWebhookEvent(stripeEvent.Type, paymentIntent.Id));
     }
 }
