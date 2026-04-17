@@ -25,7 +25,7 @@ public class PaymentsController(
     /// <response code="401">User is not authenticated.</response>
     [HttpPost]
     [Authorize]
-    [EnableRateLimiting("userLimiter")]
+    [EnableRateLimiting("checkoutLimiter")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

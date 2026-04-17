@@ -23,7 +23,7 @@ public class OrdersController(IOrderService orderService) : ControllerBase
     /// <response code="400">Validation failed or basket is empty.</response>
     /// <response code="401">User is not authenticated.</response>
     [HttpPost]
-    [EnableRateLimiting("userLimiter")]
+    [EnableRateLimiting("checkoutLimiter")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

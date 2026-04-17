@@ -44,9 +44,11 @@ namespace E_commerce.Api.Controllers
         /// <response code="400">Validation failed (e.g., invalid product IDs or quantities).</response>
         /// <response code="401">User is not authenticated.</response>
         [HttpPost]
+        [EnableRateLimiting("basketLimiter")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status429TooManyRequests)]
         public async Task<IActionResult> Add([FromBody] BasketUpdateRequest basket)
         {
             var userId = User.GetUserId();

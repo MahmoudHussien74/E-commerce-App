@@ -34,19 +34,15 @@ public static class DependencyInjection
     {
         services.AddRateLimiter(rateLimiterOptions =>
         {
-            // Return 429 Too Many Requests when limit is exceeded
             rateLimiterOptions.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 
-            // ── ipLimiter ────────────────────────────────────────────────────
-            // Applied on: Login, Register, RefreshToken
-            // Purpose: Block brute-force attacks and registration spam
-            // Limit: 10 requests / 1 minute per IP address
+
             rateLimiterOptions.AddPolicy("ipLimiter", httpContext =>
                 RateLimitPartition.GetFixedWindowLimiter(
                     partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
                     factory: _ => new FixedWindowRateLimiterOptions
                     {
-                        PermitLimit = 10,
+                        PermitLimit = 15,
                         Window = TimeSpan.FromMinutes(1),
                         QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
                         QueueLimit = 0
@@ -54,11 +50,23 @@ public static class DependencyInjection
                 )
             );
 
-            // ── userLimiter ──────────────────────────────────────────────────
-            // Applied on: CreatePayment, CreateOrder, CreateBasket
-            // Purpose: Prevent per-user abuse of write-heavy endpoints
-            // Limit: 30 requests / 1 minute per authenticated userId (falls back to IP)
-            rateLimiterOptions.AddPolicy("userLimiter", httpContext =>
+
+            rateLimiterOptions.AddPolicy("checkoutLimiter", httpContext =>
+                RateLimitPartition.GetFixedWindowLimiter(
+                    partitionKey: httpContext.User.GetUserId()
+                                  ?? httpContext.Connection.RemoteIpAddress?.ToString()
+                                  ?? "anonymous",
+                    factory: _ => new FixedWindowRateLimiterOptions
+                    {
+                        PermitLimit = 5,
+                        Window = TimeSpan.FromMinutes(1),
+                        QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                        QueueLimit = 0
+                    }
+                )
+            );
+
+            rateLimiterOptions.AddPolicy("basketLimiter", httpContext =>
                 RateLimitPartition.GetFixedWindowLimiter(
                     partitionKey: httpContext.User.GetUserId()
                                   ?? httpContext.Connection.RemoteIpAddress?.ToString()
@@ -73,16 +81,13 @@ public static class DependencyInjection
                 )
             );
 
-            // ── GlobalLimiter (Concurrency) ──────────────────────────────────
-            // Applied automatically to ALL endpoints
-            // Purpose: Prevent server overload under high traffic
-            // Limit: Max 1000 simultaneous requests, queue up to 100
+
             rateLimiterOptions.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(
                 _ => RateLimitPartition.GetConcurrencyLimiter(
                     partitionKey: "global",
                     factory: _ => new ConcurrencyLimiterOptions
                     {
-                        PermitLimit = 1000,
+                        PermitLimit = 500,
                         QueueLimit = 100,
                         QueueProcessingOrder = QueueProcessingOrder.OldestFirst
                     }

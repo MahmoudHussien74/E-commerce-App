@@ -244,12 +244,13 @@ The API implements a **custom claim-based permission system** on top of ASP.NET 
 
 ## 🚦 Rate Limiting
 
-To prevent abuse and ensure high availability, the API implements several Rate Limiting mechanisms:
+To prevent abuse and ensure high availability, the API implements several Rate Limiting mechanisms without queueing dropped requests, preventing unnecessary server load:
 
-- **IP-Based Limiter (`ipLimiter`)**: Applied to Auth endpoints (`/login`, `/register`, `/refresh`) to prevent brute-force attacks and spam. Limit: **10 requests / 1 minute** per IP.
-- **User-Based Limiter (`userLimiter`)**: Applied to write-heavy endpoints (like creating Orders or Payments) to prevent per-user abuse. Limit: **30 requests / 1 minute** per authenticated user.
-- **Global Concurrency Limiter**: Applied automatically to **ALL** endpoints. Prevents server overload by limiting maximum concurrent requests to **1000** (queue limits up to 100 requests).
-- **Status Code**: Exceeding the limits will return `429 Too Many Requests`.
+- **IP-Based Limiter (`ipLimiter`)**: Applied to Auth endpoints (`/login`, `/register`, `/refresh`) to prevent brute-force attacks and spam. Limit: **15 requests / 1 minute** per IP.
+- **Checkout Limiter (`checkoutLimiter`)**: Applied to high-load write endpoints (`/orders` creation, `/payments`) to prevent spamming the checkout pipeline. Limit: **5 requests / 1 minute** per authenticated user.
+- **Basket Limiter (`basketLimiter`)**: Applied to basket modification endpoints. Limit: **30 requests / 1 minute** per authenticated user.
+- **Global Concurrency Limiter**: Applied automatically to **ALL** endpoints. Prevents server overload by limiting maximum concurrent requests to **500** (queue limits up to 100 requests).
+- **Status Code**: Exceeding the limits will immediately return `429 Too Many Requests`. Clients should implement appropriate retry logic.
 
 ---
 
