@@ -43,6 +43,7 @@ A fully-featured, production-ready E-Commerce REST API implementing **Clean Arch
 - 💳 Stripe Payment Integration with Webhooks
 - 📦 Unit of Work & Generic Repository patterns
 - ✅ FluentValidation input validation
+- 🧪 Comprehensive Unit Testing (xUnit + Moq)
 - 📊 Health Checks (SQL Server + Redis)
 - 📄 Swagger / OpenAPI documentation
 
@@ -271,6 +272,21 @@ The system leverages **Serilog** for advanced, structured logging.
 - **Console Sink**: Used for real-time monitoring.
 - **File Sink**: Daily rolling logs configured in JSON format for easy ingestion by log aggregators (e.g., ELK stack, Seq).
 - **Contextual Enrichment**: Logs automatically include Thread IDs, Machine Names, and HTTP request contexts.
+
+---
+
+## 🧪 Testing
+
+The project includes a comprehensive suite of **Unit Tests** focusing on the core business logic (Domain and Application layers) to guarantee stability.
+
+- **Framework**: [xUnit](https://xunit.net/)
+- **Mocking**: [Moq](https://github.com/moq/moq4)
+- **Assertions**: Standard xUnit assertions ensure deterministic success criteria.
+
+To execute the test suite:
+```bash
+dotnet test tests/E-commerce.Core.Tests
+```
 
 ---
 
