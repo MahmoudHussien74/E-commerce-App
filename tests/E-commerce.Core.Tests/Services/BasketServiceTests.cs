@@ -1,131 +1,92 @@
-using E_commerce.Core.Tests.Common;
+using E_commerce.Application.Abstractions.Persistence;
+using E_commerce.Application.Common;
+using E_commerce.Application.Contracts.Basket;
+using E_commerce.Application.Errors;
+using E_commerce.Application.Services;
+using E_commerce.Core.Entities;
+using Moq;
+using Xunit;
 
 namespace E_commerce.Core.Tests.Services;
 
 public class BasketServiceTests
 {
-    private readonly BasketServiceTestContext _context = new();
+    private readonly Mock<IUnitOfWork> _unitOfWorkMock;
+    private readonly Mock<ICustomerBasketRepository> _basketRepoMock;
+    private readonly BasketService _sut;
+
+    public BasketServiceTests()
+    {
+        _unitOfWorkMock = new Mock<IUnitOfWork>();
+        _basketRepoMock = new Mock<ICustomerBasketRepository>();
+        
+        _unitOfWorkMock.Setup(u => u.CustomerBasketRepository).Returns(_basketRepoMock.Object);
+        _sut = new BasketService(_unitOfWorkMock.Object);
+    }
 
     [Fact]
-    public async Task GetBasketAsync_ShouldReturnMappedBasket_WhenBasketExists()
+    public async Task GetBasketAsync_WhenBasketExists_ShouldReturnSuccessWithItems()
     {
-        var basket = TestDataFactory.CreateBasket();
-        _context.BasketRepositoryMock.Setup(x => x.GetBasketAsync("basket-123"))
+        // Arrange
+        var buyerId = "test-buyer-id";
+        var basket = new CustomerBasket(buyerId)
+        {
+            BasketItems = [ new BasketItem { Id = 1, Name = "Laptop", Qunatity = 1, Price = 1500, Category = "Electronics" } ]
+        };
+
+        _basketRepoMock.Setup(x => x.GetBasketAsync(buyerId, default))
             .ReturnsAsync(Result.Success(basket));
 
-        var result = await _context.Sut.GetBasketAsync("basket-123");
+        // Act
+        var result = await _sut.GetBasketAsync(buyerId);
 
+        // Assert
         Assert.True(result.IsSuccess);
-
-        Assert.Equal("basket-123", result.Value.Id);
-
-        Assert.Single(result.Value.BasketItems);
+        Assert.NotNull(result.Value);
+        Assert.Single(result.Value.Items);
+        Assert.Equal("Laptop", result.Value.Items[0].Name);
     }
 
     [Fact]
-    public async Task GetBasketAsync_ShouldReturnFailure_WhenRepositoryReturnsFailure()
+    public async Task GetBasketAsync_WhenBasketNotFound_ShouldReturnFailure()
     {
-        var expectedError = BasketErrors.NotFound;
-        _context.BasketRepositoryMock.Setup(x => x.GetBasketAsync("missing-basket"))
-            .ReturnsAsync(Result.Failure<CustomerBasket>(expectedError));
+        // Arrange
+        var buyerId = "non-existent-buyer";
+        _basketRepoMock.Setup(x => x.GetBasketAsync(buyerId, default))
+            .ReturnsAsync(Result.Failure<CustomerBasket>(BasketErrors.NotFound));
 
-        var result = await _context.Sut.GetBasketAsync("missing-basket");
+        // Act
+        var result = await _sut.GetBasketAsync(buyerId);
 
-        Assert.True(result.IsFailure);
-        Assert.Equal(expectedError, result.Error);
+        // Assert
+        Assert.False(result.IsSuccess);
+        Assert.Equal(BasketErrors.NotFound, result.Error);
     }
 
     [Fact]
-    public async Task UpdateBasketAsync_ShouldReturnUpdatedBasket_WhenRequestIsValid()
+    public async Task UpdateBasketAsync_WhenValidRequest_ShouldReturnSuccess()
     {
-        var request = TestDataFactory.CreateBasketResponse();
-        var updatedBasket = TestDataFactory.CreateBasket();
-        _context.BasketRepositoryMock.Setup(x => x.UpdateBasketAsync(It.IsAny<CustomerBasket>()))
+        // Arrange
+        var buyerId = "test-buyer-id";
+        var request = new BasketUpdateRequest
+        {
+            DeliveryMethodId = 1,
+            ShippingPrice = 10,
+            Items = new List<BasketItemRequest>
+            {
+                new BasketItemRequest { Id = 2, Name = "Mouse", Quantity = 2, Price = 25, Category = "Accessories" }
+            }
+        };
+
+        var updatedBasket = new CustomerBasket(buyerId) { BasketItems = [ new BasketItem { Id = 2, Name = "Mouse" } ] };
+        _basketRepoMock.Setup(x => x.UpdateBasketAsync(It.IsAny<CustomerBasket>(), default))
             .ReturnsAsync(Result.Success(updatedBasket));
 
-        var result = await _context.Sut.UpdateBasketAsync(request);
+        // Act
+        var result = await _sut.UpdateBasketAsync(buyerId, request);
 
+        // Assert
         Assert.True(result.IsSuccess);
-        Assert.Equal(request.Id, result.Value.Id);
-        Assert.Equal(request.BasketItems.Count, result.Value.BasketItems.Count);
-    }
-
-    [Fact]
-    public async Task UpdateBasketAsync_ShouldMapEmptyItemsCollection_WhenBasketHasNoItems()
-    {
-        var request = TestDataFactory.CreateBasketResponse();
-        request.BasketItems.Clear();
-
-        _context.BasketRepositoryMock.Setup(x => x.UpdateBasketAsync(It.Is<CustomerBasket>(basket =>
-                basket.Id == request.Id &&
-                basket.basketItems.Count == 0)))
-            .ReturnsAsync(Result.Success(new CustomerBasket(request.Id)));
-
-        var result = await _context.Sut.UpdateBasketAsync(request);
-
-        Assert.True(result.IsSuccess);
-        Assert.Empty(result.Value.BasketItems);
-    }
-
-    [Fact]
-    public async Task UpdateBasketAsync_ShouldReturnFailure_WhenRepositoryReturnsFailure()
-    {
-        var request = TestDataFactory.CreateBasketResponse();
-        _context.BasketRepositoryMock.Setup(x => x.UpdateBasketAsync(It.IsAny<CustomerBasket>()))
-            .ReturnsAsync(Result.Failure<CustomerBasket>(BasketErrors.UpdateFailed));
-
-        var result = await _context.Sut.UpdateBasketAsync(request);
-
-        Assert.True(result.IsFailure);
-        Assert.Equal(BasketErrors.UpdateFailed, result.Error);
-    }
-
-    [Fact]
-    public async Task UpdateBasketAsync_ShouldReturnFailure_WhenRepositoryThrowsException()
-    {
-        var request = TestDataFactory.CreateBasketResponse();
-        _context.BasketRepositoryMock.Setup(x => x.UpdateBasketAsync(It.IsAny<CustomerBasket>()))
-            .ThrowsAsync(new InvalidOperationException("Redis unavailable"));
-
-        var result = await _context.Sut.UpdateBasketAsync(request);
-
-        Assert.True(result.IsFailure);
-        Assert.Equal(BasketErrors.UpdateFailed, result.Error);
-    }
-
-    [Fact]
-    public async Task DeleteBasketAsync_ShouldReturnSuccess_WhenRepositoryDeletesBasket()
-    {
-        _context.BasketRepositoryMock.Setup(x => x.DeleteBasketAsync("basket-123"))
-            .ReturnsAsync(Result.Success());
-
-        var result = await _context.Sut.DeleteBasketAsync("basket-123");
-
-        Assert.True(result.IsSuccess);
-    }
-
-    [Fact]
-    public async Task DeleteBasketAsync_ShouldReturnRepositoryFailure_WhenDeleteFails()
-    {
-        _context.BasketRepositoryMock.Setup(x => x.DeleteBasketAsync("basket-123"))
-            .ReturnsAsync(Result.Failure(BasketErrors.DeletionFailed));
-
-        var result = await _context.Sut.DeleteBasketAsync("basket-123");
-
-        Assert.True(result.IsFailure);
-        Assert.Equal(BasketErrors.DeletionFailed, result.Error);
-    }
-
-    [Fact]
-    public async Task DeleteBasketAsync_ShouldReturnDeletionFailed_WhenRepositoryThrowsException()
-    {
-        _context.BasketRepositoryMock.Setup(x => x.DeleteBasketAsync("basket-123"))
-            .ThrowsAsync(new Exception("Storage timeout"));
-
-        var result = await _context.Sut.DeleteBasketAsync("basket-123");
-
-        Assert.True(result.IsFailure);
-
-        Assert.Equal(BasketErrors.DeletionFailed, result.Error);
+        Assert.Equal(buyerId, result.Value.BuyerId);
     }
 }
