@@ -36,21 +36,27 @@ public static class IdentityDataSeeder
         var allPermissions = await dbContext.Permissions.ToListAsync();
 
         // 2. Link Permissions to Roles
-        // Admin: All Permissions
-        await AssignPermissionsToRole(dbContext, DefaultIdentityData.AdminRoleId, allPermissions.Select(p => p.Id));
+        var adminRole = await dbContext.Roles.FirstOrDefaultAsync(r => r.Name == DefaultIdentityData.AdminRoleName);
+        if (adminRole != null)
+        {
+            await AssignPermissionsToRole(dbContext, adminRole.Id, allPermissions.Select(p => p.Id));
+        }
 
-        // Customer: Basic Permissions
-        var customerPermissions = allPermissions.Where(p => 
-            p.Name == PermissionNames.ProductsRead ||
-            p.Name == PermissionNames.CategoriesRead ||
-            p.Name == PermissionNames.OrdersRead ||
-            p.Name == PermissionNames.OrdersCreate ||
-            p.Name == PermissionNames.BasketWrite ||
-            p.Name == PermissionNames.PaymentsCreate ||
-            p.Name == PermissionNames.DeliveryMethodsRead
-        ).Select(p => p.Id);
+        var customerRole = await dbContext.Roles.FirstOrDefaultAsync(r => r.Name == DefaultIdentityData.CustomerRoleName);
+        if (customerRole != null)
+        {
+            var customerPermissions = allPermissions.Where(p => 
+                p.Name == PermissionNames.ProductsRead ||
+                p.Name == PermissionNames.CategoriesRead ||
+                p.Name == PermissionNames.OrdersRead ||
+                p.Name == PermissionNames.OrdersCreate ||
+                p.Name == PermissionNames.BasketWrite ||
+                p.Name == PermissionNames.PaymentsCreate ||
+                p.Name == PermissionNames.DeliveryMethodsRead
+            ).Select(p => p.Id);
 
-        await AssignPermissionsToRole(dbContext, DefaultIdentityData.CustomerRoleId, customerPermissions);
+            await AssignPermissionsToRole(dbContext, customerRole.Id, customerPermissions);
+        }
 
         if (dbContext.ChangeTracker.HasChanges())
         {
