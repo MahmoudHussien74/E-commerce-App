@@ -1,16 +1,8 @@
-global using AutoMapper;
 global using E_commerce.Application.Common;
 global using E_commerce.Application.Contracts.Basket;
-global using E_commerce.Application.Contracts.Order;
 global using E_commerce.Core.Entities;
-global using E_commerce.Core.Entities.Order;
-global using E_commerce.Core.Entities.Product;
 global using E_commerce.Application.Errors;
 global using E_commerce.Application.Abstractions.Persistence;
-global using E_commerce.Application.Abstractions.Services;
 global using E_commerce.Application.Services;
-global using Microsoft.Extensions.Logging;
-global using Microsoft.Extensions.Logging.Abstractions;
 global using Moq;
-global using System.Linq.Expressions;
 global using Xunit;

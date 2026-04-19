@@ -18,4 +18,8 @@
     <ProjectReference Include="..\E-commerce.Core\E-commerce.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="E-commerce.Core.Tests" />
+  </ItemGroup>
+
 </Project>
