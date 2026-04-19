@@ -12,6 +12,8 @@ var app = builder.Build();
 
 app.UseSerilogRequestLogging();
 
+await E_commerce.Infrastructure.Data.IdentityDataSeeder.SeedAsync(app.Services);
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseHsts();
