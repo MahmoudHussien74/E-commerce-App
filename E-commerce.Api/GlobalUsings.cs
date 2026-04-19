@@ -5,6 +5,7 @@ global using FluentValidation.AspNetCore;
 global using E_commerce.Api;
 global using E_commerce.Api.Abstraction;
 global using E_commerce.Application;
+global using E_commerce.Application.Abstractions.Authorization;
 global using E_commerce.Application.Abstractions.Authentication;
 global using E_commerce.Application.Abstractions.Services;
 global using E_commerce.Application.Common;

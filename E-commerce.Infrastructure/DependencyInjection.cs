@@ -98,7 +98,7 @@ public static class DependencyInjection
 
     private static IServiceCollection AddAuthenticationServices(this IServiceCollection services)
     {
-        services.AddScoped<IIdentityService, AuthService>();
+        services.AddScoped<IIdentityService, IdentityService>();
         services.AddScoped<ITokenService, JwtProvider>();
         return services;
     }

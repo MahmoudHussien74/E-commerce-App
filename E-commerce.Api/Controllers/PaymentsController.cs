@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.RateLimiting;
+using E_commerce.Infrastructure.Authentication.Permissions;
 
 namespace E_commerce.Api.Controllers;
 
@@ -24,7 +25,7 @@ public class PaymentsController(
     /// <response code="400">Basket is empty or delivery method is invalid.</response>
     /// <response code="401">User is not authenticated.</response>
     [HttpPost]
-    [Authorize]
+    [HasPermission(PermissionPolicyNames.PaymentsCreate)]
     [EnableRateLimiting("checkoutLimiter")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

@@ -1,5 +1,5 @@
-using E_commerce.Application.Abstractions.Authorization;
 using Microsoft.AspNetCore.Authorization;
+using E_commerce.Infrastructure.Authentication.Permissions;
 
 namespace E_commerce.Api.Controllers;
 
@@ -18,6 +18,7 @@ public class CategoriesController(ICategoryService categoryService) : Controller
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <response code="200">Returns all categories.</response>
     [HttpGet("")]
+    [HasPermission(PermissionPolicyNames.CategoriesRead)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
     {
@@ -34,6 +35,7 @@ public class CategoriesController(ICategoryService categoryService) : Controller
     /// <response code="200">Returns the category details.</response>
     /// <response code="404">No category found with the given ID.</response>
     [HttpGet("{id}")]
+    [HasPermission(PermissionPolicyNames.CategoriesRead)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Get([FromRoute] int id, CancellationToken cancellationToken)
@@ -53,7 +55,7 @@ public class CategoriesController(ICategoryService categoryService) : Controller
     /// <response code="401">User is not authenticated.</response>
     /// <response code="403">User lacks the required permission.</response>
     [HttpPost("")]
-    [Authorize(Policy = PermissionPolicyNames.CategoriesCreate)]
+    [HasPermission(PermissionPolicyNames.CategoriesCreate)]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -79,7 +81,7 @@ public class CategoriesController(ICategoryService categoryService) : Controller
     /// <response code="403">User lacks the required permission.</response>
     /// <response code="404">No category found with the given ID.</response>
     [HttpPut("{id}")]
-    [Authorize(Policy = PermissionPolicyNames.CategoriesUpdate)]
+    [HasPermission(PermissionPolicyNames.CategoriesUpdate)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -102,7 +104,7 @@ public class CategoriesController(ICategoryService categoryService) : Controller
     /// <response code="403">User lacks the required permission.</response>
     /// <response code="404">No category found with the given ID.</response>
     [HttpDelete("{id}")]
-    [Authorize(Policy = PermissionPolicyNames.CategoriesDelete)]
+    [HasPermission(PermissionPolicyNames.CategoriesDelete)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]

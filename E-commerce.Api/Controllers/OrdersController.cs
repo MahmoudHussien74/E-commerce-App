@@ -1,6 +1,7 @@
 using E_commerce.Application.Abstractions.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.RateLimiting;
+using E_commerce.Infrastructure.Authentication.Permissions;
 
 namespace E_commerce.Api.Controllers;
 
@@ -23,6 +24,7 @@ public class OrdersController(IOrderService orderService) : ControllerBase
     /// <response code="400">Validation failed or basket is empty.</response>
     /// <response code="401">User is not authenticated.</response>
     [HttpPost]
+    [HasPermission(PermissionPolicyNames.OrdersCreate)]
     [EnableRateLimiting("checkoutLimiter")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -46,6 +48,7 @@ public class OrdersController(IOrderService orderService) : ControllerBase
     /// <response code="200">Returns the list of orders for the current user.</response>
     /// <response code="401">User is not authenticated.</response>
     [HttpGet]
+    [HasPermission(PermissionPolicyNames.OrdersRead)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> GetOrdersForUser()
@@ -66,6 +69,7 @@ public class OrdersController(IOrderService orderService) : ControllerBase
     /// <response code="401">User is not authenticated.</response>
     /// <response code="404">Order not found or does not belong to the current user.</response>
     [HttpGet("{id}")]
+    [HasPermission(PermissionPolicyNames.OrdersRead)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -89,7 +93,7 @@ public class OrdersController(IOrderService orderService) : ControllerBase
     /// <response code="401">User is not authenticated.</response>
     /// <response code="404">Order not found.</response>
     [HttpPatch("{id}/status")]
-    [Authorize(Policy = PermissionPolicyNames.OrdersUpdate)]
+    [HasPermission(PermissionPolicyNames.OrdersUpdate)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

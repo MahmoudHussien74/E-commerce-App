@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
+using E_commerce.Infrastructure.Authentication.Permissions;
+using E_commerce.Application.Abstractions.Authorization;
 
 namespace E_commerce.Api.Controllers
 {
@@ -6,7 +8,7 @@ namespace E_commerce.Api.Controllers
     /// Manages the shopping basket for the authenticated user.
     /// All operations are automatically scoped to the current user's basket.
     /// </summary>
-    [Authorize]
+    [HasPermission(PermissionPolicyNames.BasketWrite)]
     [Route("api/[controller]")]
     [ApiController]
     public class BasketsController(IBasketService basketService) : ControllerBase

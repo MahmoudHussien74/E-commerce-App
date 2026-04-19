@@ -360,4 +360,14 @@ MigrationBackup/
 .ionide/
 
 # Fody - auto-generated XML schema
-FodyWeavers.xsd
+# Project specific ignores
+**/appsettings.json
+**/appsettings.Development.json
+**/appsettings.local.json
+**/launchSettings.json
+**/dotnet-tools.json
+.github/
+scratch/
+wwwroot/Images/*
+!wwwroot/Images/.gitkeep
+FodyWeavers.xsd

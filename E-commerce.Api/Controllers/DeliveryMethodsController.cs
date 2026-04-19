@@ -3,6 +3,7 @@ using E_commerce.Application.Abstractions.Services;
 using E_commerce.Application.Contracts.Order;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using E_commerce.Infrastructure.Authentication.Permissions;
 
 namespace E_commerce.Api.Controllers;
 
@@ -20,6 +21,7 @@ public class DeliveryMethodsController(IDeliveryMethodService deliveryMethodServ
     /// </summary>
     /// <response code="200">Returns the list of delivery methods.</response>
     [HttpGet]
+    [HasPermission(PermissionPolicyNames.DeliveryMethodsRead)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAll()
     {
@@ -34,6 +36,7 @@ public class DeliveryMethodsController(IDeliveryMethodService deliveryMethodServ
     /// <response code="200">Returns the delivery method details.</response>
     /// <response code="404">Delivery method not found.</response>
     [HttpGet("{id}")]
+    [HasPermission(PermissionPolicyNames.DeliveryMethodsRead)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetById([FromRoute] int id)
@@ -48,7 +51,7 @@ public class DeliveryMethodsController(IDeliveryMethodService deliveryMethodServ
     /// <param name="request">Delivery method details.</param>
     /// <response code="201">Delivery method created successfully.</response>
     /// <response code="400">Validation failed.</response>
-    [Authorize(Policy = PermissionPolicyNames.DeliveryMethodsCreate)]
+    [HasPermission(PermissionPolicyNames.DeliveryMethodsCreate)]
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -69,7 +72,7 @@ public class DeliveryMethodsController(IDeliveryMethodService deliveryMethodServ
     /// <response code="200">Delivery method updated successfully.</response>
     /// <response code="400">Validation failed.</response>
     /// <response code="404">Delivery method not found.</response>
-    [Authorize(Policy = PermissionPolicyNames.DeliveryMethodsUpdate)]
+    [HasPermission(PermissionPolicyNames.DeliveryMethodsUpdate)]
     [HttpPut("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -87,7 +90,7 @@ public class DeliveryMethodsController(IDeliveryMethodService deliveryMethodServ
     /// <param name="id">The delivery method ID.</param>
     /// <response code="204">Delivery method deleted successfully.</response>
     /// <response code="404">Delivery method not found.</response>
-    [Authorize(Policy = PermissionPolicyNames.DeliveryMethodsDelete)]
+    [HasPermission(PermissionPolicyNames.DeliveryMethodsDelete)]
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

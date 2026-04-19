@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Http;
 namespace E_commerce.Infrastructure.Service;
-public class AuthService(
+public class IdentityService(
     UserManager<User> userManager,
     RoleManager<ApplicationRole> roleManager,
     ApplicationDbContext dbContext) : IIdentityService

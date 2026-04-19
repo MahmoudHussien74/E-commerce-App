@@ -37,7 +37,8 @@ A fully-featured, production-ready E-Commerce REST API implementing **Clean Arch
 **Key highlights:**
 - 🏛️ Clean Architecture (Core → Application → Infrastructure → API)
 - 🔐 JWT Authentication with Refresh Tokens
-- 🛡️ Fine-grained Permission-Based Authorization
+- 🛡️ Advanced Permission-Based Authorization (Custom Policy Provider)
+- 🏷️ Custom `[HasPermission]` Attribute for clean controller code
 - 🛒 Redis-backed Shopping Basket
 - 💳 Stripe Payment Integration with Webhooks
 - 📦 Unit of Work & Generic Repository patterns
@@ -229,21 +230,26 @@ E-commerce/
 
 ## 🔑 Permission System
 
-The API implements a **custom claim-based permission system** on top of ASP.NET Core's authorization middleware. Each role is assigned a set of fine-grained permission claims at seeding time.
+The API implements a **custom claim-based permission system** using a `PermissionAuthorizationPolicyProvider`. Instead of simple roles, authorization is checked against specific permission strings stored as claims in the user's JWT.
 
-| Permission | Description |
-|---|---|
-| `products:read` | View products |
-| `products:create` | Create products |
-| `products:update` | Update products |
-| `products:delete` | Delete products |
-| `categories:read/create/update/delete` | Manage categories |
-| `orders:read` | View orders |
-| `orders:create` | Place orders |
-| `orders:update` | Update order status |
-| `deliverymethods:read/create/update/delete` | Manage delivery methods |
-| `payments:create` | Initiate payments |
-| `basket:write` | Manage shopping basket |
+### Key Components:
+- **`HasPermissionAttribute`**: A custom attribute that inherits from `AuthorizeAttribute`, allowing you to protect endpoints with a simple `[HasPermission(PermissionPolicyNames.ProductsCreate)]`.
+- **Dynamic Policy Provider**: Automatically generates authorization policies for any permission string requested.
+- **Permission Seeding**: Permissions are linked to roles (Admin/Customer) and stored in the database.
+
+| Permission | Description | Required Role (Default) |
+|---|---|---|
+| `products:read` | View products | Anonymous/All |
+| `products:create` | Add new products | Admin |
+| `products:update` | Edit product details | Admin |
+| `products:delete` | Remove products | Admin |
+| `categories:read` | View categories | Anonymous/All |
+| `categories:create/update/delete` | Manage categories | Admin |
+| `orders:read` | View personal/all orders | User/Admin |
+| `orders:create` | Place new orders | User |
+| `orders:update` | Change order status | Admin |
+| `basket:write` | Manage shopping basket | User |
+| `payments:create` | Process payments | User |
 
 ---
 
@@ -300,29 +306,19 @@ The API will be available at `https://localhost:5001` and Swagger at `https://lo
 
 ## ⚙️ Configuration
 
-Create or update `E-commerce.Api/appsettings.json`:
+### Steps:
+1. Rename `appsettings.Example.json` to `appsettings.json`.
+2. Fill in your local connection strings and Stripe keys.
+3. For JWT, generate a secure key (at least 32 characters).
 
-```json
-{
-  "ConnectionStrings": {
-    "EcommerceDatabase": "Server=.;Database=EcommerceDb;Trusted_Connection=True;TrustServerCertificate=True;",
-    "redis": "localhost:6379"
-  },
-  "Jwt": {
-    "Key": "YOUR_SUPER_SECRET_KEY_AT_LEAST_32_CHARACTERS",
-    "Issuer": "EcommerceApi",
-    "Audience": "EcommerceApiClient",
-    "ExpiryMinutes": 60
-  },
-  "Stripe": {
-    "SecretKey": "sk_test_...",
-    "PublishableKey": "pk_test_...",
-    "WebhookSecret": "whsec_..."
-  }
-}
-```
-
-> **Note:** For production, store secrets using **Environment Variables** or **Azure Key Vault** — never commit secrets to source control.
+> [!IMPORTANT]
+> **Production Security**: Sensitive data should be provided via **Environment Variables** (using double underscores `__` for nested keys) instead of the `appsettings.json` file.
+> 
+> **Examples:**
+> - `ConnectionStrings__EcommerceDatabase` (for SQL Server)
+> - `ConnectionStrings__redis` (for Redis)
+> - `Jwt__Key` (for JWT Secret)
+> - `StripeSettings__SecretKey` (for Stripe Secret)
 
 ---
 

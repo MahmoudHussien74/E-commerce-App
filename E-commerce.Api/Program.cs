@@ -11,6 +11,12 @@ builder.Host.UseSerilog((context, configuration) =>
 var app = builder.Build();
 
 app.UseSerilogRequestLogging();
+
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHsts();
+}
+
 app.UseSwagger();
 app.UseSwaggerUI(options =>
 {
@@ -19,6 +25,7 @@ app.UseSwaggerUI(options =>
     options.DocumentTitle = "E-Commerce API";
 });
 
+app.UseCors(policy => policy.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin()); // Adjust for production!
 app.UseHttpsRedirection();
 
 app.UseExceptionHandler();
@@ -28,6 +35,9 @@ app.UseAuthorization();
 app.UseRateLimiter();
 
 app.MapControllers();
+
+app.MapGet("/", () => Results.Redirect("/swagger"));
+
 
 app.MapHealthChecks("/health", new HealthCheckOptions
 {
