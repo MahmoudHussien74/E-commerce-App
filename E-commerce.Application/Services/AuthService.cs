@@ -14,23 +14,23 @@ internal sealed class AuthService(
 {
     private static readonly TimeSpan RefreshTokenLifetime = TimeSpan.FromDays(7);
 
-    public async Task<Result<AuthResponse>> RegisterAsync(RegisterRequest request, CancellationToken cancellationToken = default)
+    public async Task<Result<RegisterResponse>> RegisterAsync(RegisterRequest request, CancellationToken cancellationToken = default)
     {
         if (await identityService.EmailExistsAsync(request.Email, cancellationToken))
         {
-            return Result.Failure<AuthResponse>(UserErrors.DuplicatedEmail);
+            return Result.Failure<RegisterResponse>(UserErrors.DuplicatedEmail);
         }
 
         var createResult = await identityService.CreateUserAsync(request, cancellationToken);
         if (createResult.IsFailure)
         {
-            return Result.Failure<AuthResponse>(createResult.Error);
+            return Result.Failure<RegisterResponse>(createResult.Error);
         }
 
         var user = createResult.Value;
-        var roles = await identityService.GetRolesAsync(user.Id, cancellationToken);
-        var permissions = await identityService.GetPermissionsAsync(user.Id, cancellationToken);
-        return await IssueTokensAsync(user, roles, permissions, cancellationToken);
+        var displayName = string.Join(" ", new[] { user.FirstName, user.LastName }.Where(x => !string.IsNullOrWhiteSpace(x)));
+
+        return Result.Success(new RegisterResponse(user.Id, displayName, user.Email));
     }
 
     public async Task<Result<AuthResponse>> LoginAsync(LoginRequest request, CancellationToken cancellationToken = default)

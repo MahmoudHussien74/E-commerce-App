@@ -23,7 +23,7 @@ app.UseSwagger();
 app.UseSwaggerUI(options =>
 {
     options.SwaggerEndpoint("/swagger/v1/swagger.json", "E-Commerce API v1");
-    options.RoutePrefix = "swagger";         
+    options.RoutePrefix = "swagger";
     options.DocumentTitle = "E-Commerce API";
 });
 
@@ -38,7 +38,8 @@ app.UseRateLimiter();
 
 app.MapControllers();
 
-app.MapGet("/", () => Results.Redirect("/swagger")).ExcludeFromDescription();
+app.MapGet("/", () => Results.Redirect("/swagger"))
+                    .ExcludeFromDescription();
 
 
 app.MapHealthChecks("/health", new HealthCheckOptions
